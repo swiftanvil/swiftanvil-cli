@@ -163,7 +163,8 @@ Every child follows this exact sequence. No skipping steps.
 **Actions:**
 1. Write `Children/{id}/RESULT.md`
 2. Update `ROADMAP.md`:
-   - Mark child as complete
+   - Mark child as complete ONLY if cross-host review is APPROVED or APPROVED_WITH_NOTES
+   - If self-reviewed, mark as "complete (self-reviewed — cross-host unavailable)"
    - Update test counts
    - Update progress
 3. Update `CHECKLIST.md`
@@ -175,6 +176,8 @@ Every child follows this exact sequence. No skipping steps.
 - Updated `ROADMAP.md`
 - Updated `CHECKLIST.md`
 - Code pushed to GitHub
+
+**CRITICAL:** Do NOT mark a child as "reviewed by cross-host" if the review was self-done. Be honest about review provenance in all documentation.
 
 ---
 
@@ -317,9 +320,13 @@ The reviewer evaluates against these criteria regardless of which model they are
 3. Resume work
 
 ### If Reviewer is Unavailable
-1. Document attempt in `Children/{id}/STATUS.md`
-2. User can: (a) wait, (b) assign different reviewer, (c) approve without review
-3. If option (c), document in ROADMAP.md as "emergency bypass"
+1. Try ALL available cross-host reviewers in order: Claude CLI → Codex CLI → OpenAI CLI → any other authenticated CLI
+2. Document each attempt with error output in `Children/{id}/STATUS.md`
+3. Only after ALL reviewers fail, proceed with self-review
+4. Self-review MUST use the same checklist as cross-host review (see Review Criteria below)
+5. Self-review verdict is ALWAYS "APPROVED_WITH_NOTES" or "NEEDS_REVISION" — never "APPROVED"
+6. Document in ROADMAP.md as "self-reviewed — all cross-host reviewers unavailable"
+7. **NEVER mark a child as fully APPROVED without cross-host review** — the phase gate remains conditional
 
 ---
 
@@ -330,6 +337,7 @@ The reviewer evaluates against these criteria regardless of which model they are
 | 1.0 | 2026-06-02 | Initial framework (Kimi-specific) |
 | 2.0 | 2026-06-02 | Agent-agnostic rewrite, model rotation rules |
 | 3.0 | 2026-06-03 | Formalized 5-step per-child workflow, phase gates, file structure |
+| 3.1 | 2026-06-03 | Hardened reviewer-unavailable procedure, banned false-positive approvals, enforced honest review provenance |
 
 ---
 

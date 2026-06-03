@@ -147,7 +147,7 @@
 | Core Types | `FeatureFlags`, `FeatureFlagSystem`, `FeatureFlagKey`, `FeatureFlagValue`, `FeatureFlagSource`, `InMemoryFeatureFlagSource`, `JSONFileFeatureFlagSource`, `ABTest`, `StableHashBucketingStrategy` |
 | Platforms | iOS 16+, macOS 13+, tvOS 16+, watchOS 9+, visionOS 1+ |
 | Tests | 37/37 pass |
-| Review | ✅ Approved (Claude plan v3, self-review impl) |
+| Review | ✅ Approved (Claude plan v3, Codex impl — 2 rounds) |
 
 **Key design decisions:**
 - `@TaskLocal` for parallel-safe test injection (`withSystem()`)
@@ -165,7 +165,7 @@
 | Core Types | `DeveloperMenu`, `DeveloperMenuConfiguration`, `NetworkLogStore`, `LogCollector`, `CustomAction`, `CustomActionRegistry`, `DeviceInfo`, `MenuItem`, `NetworkLogEntry` |
 | Platforms | iOS 16+, macOS 13+, tvOS 16+, watchOS 9+, visionOS 1+ |
 | Tests | 16/16 pass |
-| Review | ✅ Approved (self-review, Claude unavailable) |
+| Review | ✅ Approved (Codex cross-host — 2 rounds) |
 
 **Key design decisions:**
 - `@MainActor` singleton for UI-only access pattern (no TaskLocal needed)
@@ -235,7 +235,7 @@ Homebrew tap, Swift Package Index listing, release automation.
 | A11yIdentifiers | 17/17 | 2026-06-02 |
 | BenchmarkKit | 78/78 | 2026-06-02 |
 | AppStrings | 21/21 | 2026-06-02 |
-| AnvilNetwork | 29/29 | 2026-06-02 |
+| AnvilNetwork | 29/29 | 2026-06-03 |
 | AnvilFlags | 37/37 | 2026-06-03 |
 | AnvilDevMenu | 16/16 | 2026-06-03 |
 | iFoundation CLI | 8/8 | 2026-06-02 |
@@ -284,7 +284,8 @@ Homebrew tap, Swift Package Index listing, release automation.
 ## Phase Gate: 2 → 3
 
 - [x] All Phase 2 children complete
-- [x] All Phase 2 children reviewed (self-review for 2.3 due to Claude unavailability)
-- [x] All review blockers fixed
+- [x] All Phase 2 children complete
+- [x] All Phase 2 children cross-host reviewed (Codex for impl, Claude for 2.1/2.2 plans)
+- [x] All review blockers fixed (3 rounds for some packages)
 - [ ] Phase 2 summary reviewed (pending cross-host reviewer)
 - [ ] **User approval to proceed** — awaiting go-ahead for Phase 3
