@@ -9,11 +9,11 @@
 | Phase | Theme | Status | Progress |
 |-------|-------|--------|----------|
 | [Phase 1](#phase-1-foundation) | Foundation | 🟢 Complete | 5/5 |
-| [Phase 2](#phase-2-core-packages) | Core Packages | 🟡 In Progress | 1/3 |
+| [Phase 2](#phase-2-core-packages) | Core Packages | 🟡 In Progress | 2/3 |
 | [Phase 3](#phase-3-cli--integration) | CLI & Integration | ⚪ Planned | 0/5 |
 | [Phase 4](#phase-4-ecosystem) | Ecosystem | ⚪ Planned | 0/3 |
 
-**Phase 2 Progress:** Child 2.1 (AnvilNetwork) ✅ complete. Ready for Child 2.2 (FeatureFlags) or Child 2.3 (Developer Menu).
+**Phase 2 Progress:** Child 2.1 (AnvilNetwork) ✅ complete. Child 2.2 (FeatureFlags) ✅ complete. Ready for Child 2.3 (Developer Menu).
 
 **Legend:** 🟢 Complete | 🟡 In Progress | 🔴 Blocked | ⚪ Planned
 
@@ -138,24 +138,23 @@
 - Exponential backoff with full jitter, respects `Retry-After`
 - Interceptor chain: `RequestInterceptor` + `ResponseInterceptor` protocols
 
-### 2.2 FeatureFlags Package
+### 2.2 FeatureFlags Package ✅
 
-**Purpose:** Remote and local feature flags with A/B test support.
+| Aspect | Detail |
+|--------|--------|
+| Repo | [`swiftanvil-anvil-flags`](https://github.com/swiftanvil/swiftanvil-anvil-flags) |
+| Source | Designed from scratch |
+| Core Types | `FeatureFlags`, `FeatureFlagSystem`, `FeatureFlagKey`, `FeatureFlagValue`, `FeatureFlagSource`, `InMemoryFeatureFlagSource`, `JSONFileFeatureFlagSource`, `ABTest`, `StableHashBucketingStrategy` |
+| Platforms | iOS 16+, macOS 13+, tvOS 16+, watchOS 9+, visionOS 1+ |
+| Tests | 37/37 pass |
+| Review | ✅ Approved (Claude plan v3, self-review impl) |
 
-**Approach:** Local + JSON file first. Remote backends (Firebase, LaunchDarkly) as plugins.
-
-**Phase 2 API:**
-```swift
-// Local flags
-if FeatureFlags.isEnabled(.newOnboarding) {
-    showNewOnboarding()
-}
-
-// With context
-FeatureFlags.configure(with: .json(file: "flags.json"))
-```
-
-**Status:** Planned
+**Key design decisions:**
+- `@TaskLocal` for parallel-safe test injection (`withSystem()`)
+- `FeatureFlagValueConvertible` protocol — direct unwrap for primitives, JSONDecoder for Decodable
+- FNV-1a (pure Swift) for cross-platform A/B bucketing
+- Actor-isolated `FeatureFlagSystem` with atomic `configure(sources:)`
+- Source priority: first match wins
 
 ### 2.3 Developer Menu Package
 
@@ -230,8 +229,9 @@ Homebrew tap, Swift Package Index listing, release automation.
 | BenchmarkKit | 78/78 | 2026-06-02 |
 | AppStrings | 21/21 | 2026-06-02 |
 | AnvilNetwork | 29/29 | 2026-06-02 |
+| AnvilFlags | 37/37 | 2026-06-03 |
 | iFoundation CLI | 8/8 | 2026-06-02 |
-| **Total** | **152/152** | **100%** |
+| **Total** | **189/189** | **100%** |
 
 *Note: iFoundation CLI is the root project scaffolding tool, not a published package. Lives in this repo.*
 
@@ -261,6 +261,7 @@ Homebrew tap, Swift Package Index listing, release automation.
 | BenchmarkKit | https://github.com/swiftanvil/swiftanvil-anvil-bench |
 | AppStrings | https://github.com/swiftanvil/swiftanvil-anvil-strings |
 | AnvilNetwork | https://github.com/swiftanvil/swiftanvil-anvil-network |
+| AnvilFlags | https://github.com/swiftanvil/swiftanvil-anvil-flags |
 | CLI | https://github.com/swiftanvil/swiftanvil-cli |
 | **Workflow Guide** | **WORKFLOW.md** |
 | **Orchestration** | **ORCHESTRATION_FRAMEWORK.md** |
