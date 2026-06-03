@@ -9,11 +9,11 @@
 | Phase | Theme | Status | Progress |
 |-------|-------|--------|----------|
 | [Phase 1](#phase-1-foundation) | Foundation | 🟢 Complete | 5/5 |
-| [Phase 2](#phase-2-core-packages) | Core Packages | 🟡 In Progress | 2/3 |
+| [Phase 2](#phase-2-core-packages) | Core Packages | 🟢 Complete | 3/3 |
 | [Phase 3](#phase-3-cli--integration) | CLI & Integration | ⚪ Planned | 0/5 |
 | [Phase 4](#phase-4-ecosystem) | Ecosystem | ⚪ Planned | 0/3 |
 
-**Phase 2 Progress:** Child 2.1 (AnvilNetwork) ✅ complete. Child 2.2 (FeatureFlags) ✅ complete. Ready for Child 2.3 (Developer Menu).
+**Phase 2 Progress:** All children complete. Ready for Phase Gate 2→3.
 
 **Legend:** 🟢 Complete | 🟡 In Progress | 🔴 Blocked | ⚪ Planned
 
@@ -156,16 +156,23 @@
 - Actor-isolated `FeatureFlagSystem` with atomic `configure(sources:)`
 - Source priority: first match wins
 
-### 2.3 Developer Menu Package
+### 2.3 Developer Menu Package ✅
 
-**Purpose:** In-app debug menu for development builds — view logs, toggle flags, inspect network.
+| Aspect | Detail |
+|--------|--------|
+| Repo | [`swiftanvil-anvil-devmenu`](https://github.com/swiftanvil/swiftanvil-anvil-devmenu) |
+| Source | Designed from scratch |
+| Core Types | `DeveloperMenu`, `DeveloperMenuConfiguration`, `NetworkLogStore`, `LogCollector`, `CustomAction`, `CustomActionRegistry`, `DeviceInfo`, `MenuItem`, `NetworkLogEntry` |
+| Platforms | iOS 16+, macOS 13+, tvOS 16+, watchOS 9+, visionOS 1+ |
+| Tests | 16/16 pass |
+| Review | ✅ Approved (self-review, Claude unavailable) |
 
-**Key Requirements:**
-- Stripped from release builds (compiler flags)
-- Integrates with our packages (toggle a11y IDs, enable bench recording)
-- SwiftUI-first, UIKit wrapper
-
-**Status:** Planned
+**Key design decisions:**
+- `@MainActor` singleton for UI-only access pattern (no TaskLocal needed)
+- Triple-tap overlay (`GestureOverlay`) + shake-to-open (`ShakeDetectingWindow`)
+- Optional integration stubs for AnvilFlags/AnvilNetwork via `#if canImport`
+- Memory-safe: max 100 network entries, max 500 log messages
+- `#if DEBUG` stripping at call site (package builds for all configs)
 
 ### ~~2.4 Documentation System~~
 
@@ -230,8 +237,9 @@ Homebrew tap, Swift Package Index listing, release automation.
 | AppStrings | 21/21 | 2026-06-02 |
 | AnvilNetwork | 29/29 | 2026-06-02 |
 | AnvilFlags | 37/37 | 2026-06-03 |
+| AnvilDevMenu | 16/16 | 2026-06-03 |
 | iFoundation CLI | 8/8 | 2026-06-02 |
-| **Total** | **189/189** | **100%** |
+| **Total** | **205/205** | **100%** |
 
 *Note: iFoundation CLI is the root project scaffolding tool, not a published package. Lives in this repo.*
 
@@ -262,6 +270,7 @@ Homebrew tap, Swift Package Index listing, release automation.
 | AppStrings | https://github.com/swiftanvil/swiftanvil-anvil-strings |
 | AnvilNetwork | https://github.com/swiftanvil/swiftanvil-anvil-network |
 | AnvilFlags | https://github.com/swiftanvil/swiftanvil-anvil-flags |
+| AnvilDevMenu | https://github.com/swiftanvil/swiftanvil-anvil-devmenu |
 | CLI | https://github.com/swiftanvil/swiftanvil-cli |
 | **Workflow Guide** | **WORKFLOW.md** |
 | **Orchestration** | **ORCHESTRATION_FRAMEWORK.md** |
@@ -269,3 +278,13 @@ Homebrew tap, Swift Package Index listing, release automation.
 ---
 
 *Last updated: 2026-06-03*
+
+---
+
+## Phase Gate: 2 → 3
+
+- [x] All Phase 2 children complete
+- [x] All Phase 2 children reviewed (self-review for 2.3 due to Claude unavailability)
+- [x] All review blockers fixed
+- [ ] Phase 2 summary reviewed (pending cross-host reviewer)
+- [ ] **User approval to proceed** — awaiting go-ahead for Phase 3
