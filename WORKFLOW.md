@@ -9,10 +9,10 @@
 ```
 swiftanvil/                          ← GitHub Org
 ├── .github/                         ← Org profile, shared templates
-│   ├── profile/README.md            ← Renders on github.com/swiftanvil
+│   ├── org.profile-readme            ← Renders on github.com/swiftanvil
 │   ├── LICENSE                      ← MIT (applies to all repos)
-│   ├── CONTRIBUTING.md              ← Shared contribution guidelines
-│   ├── CODE_OF_CONDUCT.md           ← Community standards
+│   ├── org.contributing              ← Shared contribution guidelines
+│   ├── org.code-of-conduct           ← Community standards
 │   └── workflows/ci.yml             ← Reusable CI template
 │
 ├── swiftanvil-anvil-a11y/           ← Package: Accessibility identifiers
@@ -29,7 +29,7 @@ swiftanvil/                          ← GitHub Org
 
 ### 1. Pick What to Work On
 
-Check [`ROADMAP.md`](ROADMAP.md) for current priorities. The roadmap tells you:
+Check [`roadmap.org`](roadmap.org) for current priorities. The roadmap tells you:
 - Which phase is active
 - Which child is next
 - What the proposed API looks like
@@ -72,7 +72,7 @@ Sometimes a change affects multiple packages (e.g., shared API pattern):
 ### Opening a PR
 
 1. Push your branch
-2. GitHub auto-fills the PR template from `.github/PULL_REQUEST_TEMPLATE.md`
+2. GitHub auto-fills the PR template from `org.pull-request-template`
 3. Fill in: Summary, Changes, Testing checklist
 4. Link related issues: `Fixes #123`
 5. Request review from maintainer
@@ -87,7 +87,7 @@ Sometimes a change affects multiple packages (e.g., shared API pattern):
 ### After Merge
 
 - Delete your branch
-- Update `ROADMAP.md` if this completes a milestone
+- Update `roadmap.org` if this completes a milestone
 - Tag a release if this is a user-facing change
 
 ---
@@ -162,7 +162,7 @@ For changes that span multiple packages, we don't have integration tests yet. Pl
 
 ### Package READMEs
 
-Each package repo has its own `README.md` with:
+Each package repo has its own `package.readme` with:
 - Installation instructions
 - Quick start code
 - API overview
@@ -176,9 +176,9 @@ Each package repo has its own `README.md` with:
 
 ### Org-Level Docs
 
-- `ROADMAP.md` — Living document, updated per phase
-- `WORKFLOW.md` — This file, updated when process changes
-- `CONTRIBUTING.md` — In `.github` repo, applies org-wide
+- `roadmap.org` — Living document, updated per phase
+- `workflow.general` — This file, updated when process changes
+- `org.contributing` — In `.github` repo, applies org-wide
 
 ---
 
@@ -252,8 +252,8 @@ git tag -d 1.2.0
 
 | Document | Updated When | Owned By |
 |----------|-------------|----------|
-| `ROADMAP.md` | After each phase/child completes | Kimi |
-| `CHECKLIST.md` | After each task completes | Kimi |
+| `roadmap.org` | After each phase/child completes | Kimi |
+| `checklist.legacy` | After each task completes | Kimi |
 | `Children/{id}/RESULT.md` | After child execution | Kimi |
 | `Children/{id}/REVIEW.md` | After cross-host review | Claude |
 | GitHub Releases | After version tags | Automated |

@@ -60,8 +60,8 @@ Every child follows this exact sequence. **No skipping steps. No faking reviews.
      │              │              │              │              │
      ▼              ▼              ▼              ▼              ▼
  PLAN.md      REVIEW.md      Code+Tests     REVIEW.md      RESULT.md
-                                                    +         ROADMAP.md
-                                              (append)       CHECKLIST.md
+                                                    +         roadmap.org
+                                              (append)       checklist.legacy
 ```
 
 ### 🔒 Cross-Host Review Lock
@@ -80,7 +80,7 @@ Every child follows this exact sequence. **No skipping steps. No faking reviews.
 **Goal:** Define what to build, how to build it, and what success looks like.
 
 **Actions:**
-1. Read `ROADMAP.md` for context
+1. Read `roadmap.org` for context
 2. Define objectives, goals, non-goals
 3. Break down into tasks with estimates
 4. Identify risks and mitigations
@@ -194,27 +194,27 @@ codex review "Review <package> for implementation quality..." > reviewer-output.
 **Actions:**
 1. Write `Children/{id}/RESULT.md`
 2. **Verify REVIEW-IMPL.md exists and contains actual reviewer output**
-3. Update `ROADMAP.md`:
+3. Update `roadmap.org`:
    - Mark child as complete ONLY if cross-host review is APPROVED or APPROVED_WITH_NOTES
    - If self-reviewed, mark as "complete (self-reviewed — cross-host unavailable)"
    - **Include review provenance:** which model reviewed, how many rounds, what was found
    - Update test counts
    - Update progress
-4. Update `CHECKLIST.md`
+4. Update `checklist.legacy`
 5. Push final code to GitHub
 6. Commit all tracking files
 
 **Output:**
 - `Children/{id}/RESULT.md`
-- Updated `ROADMAP.md`
-- Updated `CHECKLIST.md`
+- Updated `roadmap.org`
+- Updated `checklist.legacy`
 - Code pushed to GitHub
 
 **CRITICAL — Pre-commit checklist:**
 - [ ] `REVIEW-IMPL.md` exists in `Children/{id}/`
 - [ ] `REVIEW-IMPL.md` contains actual reviewer output (not just builder's opinion)
 - [ ] If self-reviewed: `STATUS.md` documents ALL failed reviewer attempts
-- [ ] ROADMAP.md review line is honest about who reviewed what
+- [ ] roadmap.org review line is honest about who reviewed what
 - [ ] Never claim "Claude reviewed" if Claude was down and you self-reviewed
 
 ---
@@ -230,12 +230,12 @@ Phase N Complete
 │   └── What was built, key decisions, deviations
 │
 ├── 2. Cross-host reviewer reviews entire phase
-│   └── Reads all children RESULT.md + ROADMAP.md
+│   └── Reads all children RESULT.md + roadmap.org
 │   └── Writes PHASE-N-REVIEW.md
 │   └── Verdict: APPROVED | NEEDS_REVISION
 │
 ├── 3. If APPROVED:
-│   └── Builder updates ROADMAP.md phase status
+│   └── Builder updates roadmap.org phase status
 │   └── Builder tags phase completion in git
 │   └── User approval requested for Phase N+1
 │
@@ -275,10 +275,10 @@ Phase-Summaries/
 └── ...
 
 Root/
-├── ORCHESTRATION_FRAMEWORK.md   ← This file
-├── ROADMAP.md                    ← Living project state
-├── CHECKLIST.md                  ← Task tracking
-└── WORKFLOW.md                   ← Multi-repo workflow
+├── workflow.orchestration   ← This file
+├── roadmap.org                    ← Living project state
+├── checklist.legacy                  ← Task tracking
+└── workflow.general                   ← Multi-repo workflow
 ```
 
 ---
@@ -310,7 +310,7 @@ The reviewer evaluates against these criteria regardless of which model they are
 ### Documentation Quality
 - README with installation + quick start
 - DocC comments on public APIs
-- ADR for architectural decisions (in ROADMAP.md)
+- ADR for architectural decisions (in roadmap.org)
 
 ### Review Quality
 - Every deliverable reviewed by a DIFFERENT model
@@ -326,7 +326,7 @@ The reviewer evaluates against these criteria regardless of which model they are
 - Writes code (Step 3)
 - Writes tests
 - Writes documentation
-- Updates ROADMAP.md (Step 5)
+- Updates roadmap.org (Step 5)
 - **Can be any model:** Kimi, Claude, GPT-4, Gemini, etc.
 
 ### Cross-Host Reviewer
@@ -365,7 +365,7 @@ The reviewer evaluates against these criteria regardless of which model they are
 3. Only after ALL reviewers fail, proceed with self-review
 4. Self-review MUST use the same checklist as cross-host review (see Review Criteria below)
 5. Self-review verdict is ALWAYS "APPROVED_WITH_NOTES" or "NEEDS_REVISION" — never "APPROVED"
-6. Document in ROADMAP.md as "self-reviewed — all cross-host reviewers unavailable"
+6. Document in roadmap.org as "self-reviewed — all cross-host reviewers unavailable"
 7. **NEVER mark a child as fully APPROVED without cross-host review** — the phase gate remains conditional
 
 ---

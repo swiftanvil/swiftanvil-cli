@@ -96,7 +96,7 @@ Documentation/
 │   ├── api.yml                # API documentation index
 │   └── workflows.yml          # Workflow documentation index
 ├── Composed/
-│   ├── README.md              # Auto-generated from registry
+│   ├── package.readme              # Auto-generated from registry
 │   ├── ARCHITECTURE.md        # Composed from architecture.yml + refs
 │   └── SETUP.md               # Composed from templates
 ├── Fragments/
@@ -320,7 +320,7 @@ iFoundation/
 ├── Tests/
 │   ├── iFoundationTests/
 │   └── IntegrationTests/
-└── AGENTS.md
+└── package.agent-instructions
 ```
 
 ---

@@ -65,7 +65,7 @@
 
 **Key fixes from review:**
 - Added `BenchmarkTrait` for `@Test(.benchmark(iterations:))`
-- Added comprehensive `README.md`
+- Added comprehensive `package.readme`
 - Removed empty `BenchmarkKitSwiftUITests` target
 - Removed redundant `StrictConcurrency` flags
 
@@ -81,7 +81,7 @@
 | Review | ✅ Approved (Claude cross-host) |
 
 **Key fixes from review:**
-- Added comprehensive `README.md`
+- Added comprehensive `package.readme`
 - Removed redundant `StrictConcurrency` flags
 
 ### 1.5 GitHub Organization ✅
@@ -95,12 +95,12 @@
 | Review | ✅ Approved (Claude cross-host) |
 
 **Key fixes from review:**
-- Moved org README to `.github/profile/README.md`
+- Moved org README to `org.profile-readme`
 - Changed repo status from "Stable" → "In Progress"
 - Added MIT LICENSE
 - Added CI workflow template
 - Added PR template
-- Added CONTRIBUTING.md + CODE_OF_CONDUCT.md
+- Added org.contributing + org.code-of-conduct
 - Added branch protection to `.github` repo
 
 ---
@@ -288,8 +288,8 @@ Homebrew tap, Swift Package Index listing, release automation.
 | AnvilDevMenu | https://github.com/swiftanvil/swiftanvil-anvil-devmenu |
 | AnvilWizard | https://github.com/swiftanvil/swiftanvil-anvil-wizard |
 | CLI | https://github.com/swiftanvil/swiftanvil-cli |
-| **Workflow Guide** | **WORKFLOW.md** |
-| **Orchestration** | **ORCHESTRATION_FRAMEWORK.md** |
+| **Workflow Guide** | **workflow.general** |
+| **Orchestration** | **workflow.orchestration** |
 
 ---
 

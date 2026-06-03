@@ -92,7 +92,7 @@
 
 ## Single Source of Truth
 
-📍 **ROADMAP.md** — The living document for what's built, what's next, and why.
+📍 **roadmap.org** — The living document for what's built, what's next, and why.
 
 ## Phase Gate: Phase 1 → Phase 2
 
