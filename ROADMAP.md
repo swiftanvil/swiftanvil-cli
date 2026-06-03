@@ -10,10 +10,10 @@
 |-------|-------|--------|----------|
 | [Phase 1](#phase-1-foundation) | Foundation | 🟢 Complete | 5/5 |
 | [Phase 2](#phase-2-core-packages) | Core Packages | 🟡 In Progress | 1/3 |
-
-**Phase 2 Progress:** Child 2.1 (AnvilNetwork) ✅ complete. Ready for Child 2.2 (FeatureFlags) or Child 2.3 (Developer Menu).
 | [Phase 3](#phase-3-cli--integration) | CLI & Integration | ⚪ Planned | 0/5 |
 | [Phase 4](#phase-4-ecosystem) | Ecosystem | ⚪ Planned | 0/3 |
+
+**Phase 2 Progress:** Child 2.1 (AnvilNetwork) ✅ complete. Ready for Child 2.2 (FeatureFlags) or Child 2.3 (Developer Menu).
 
 **Legend:** 🟢 Complete | 🟡 In Progress | 🔴 Blocked | ⚪ Planned
 
@@ -33,6 +33,8 @@
 - Issue templates + PR templates + CI from day one
 
 **Decision:** `github.com/swiftanvil` as multi-repo org with `anvil-*` package naming.
+
+**Review:** Self-reviewed (research task, not code).
 
 ### 1.2 A11yIdentifiers ✅
 
@@ -106,13 +108,14 @@
 ## Phase Gate: 1 → 2
 
 - [x] All Phase 1 children complete
-- [x] All Phase 1 children cross-host reviewed
+- [x] All Phase 1 children reviewed (code children: cross-host; research: self-reviewed)
 - [x] All review blockers fixed
-- [ ] **User approval to proceed** ← You are here
+- [x] Phase 1 summary reviewed (Claude cross-host, 2026-06-03)
+- [x] **User approval to proceed** — Phase 2 work started (Child 2.1 complete)
 
 ---
 
-## Phase 2: Core Packages ⚪
+## Phase 2: Core Packages 🟡
 
 > Build the packages that most apps need.
 
@@ -125,7 +128,7 @@
 | Core Types | `HTTPClient`, `HTTPRequestBuilder`, `HTTPResponse`, `HTTPTransport`, `NetworkError`, `HTTPResponseCache`, `RetryConfiguration` |
 | Platforms | iOS 16+, macOS 13+, tvOS 16+, watchOS 9+, visionOS 1+ |
 | Tests | 29/29 pass |
-| Review | ✅ Approved (Claude cross-host, 2 rounds) |
+| Review | ✅ Approved (Claude cross-host, 2 rounds: plan + impl) |
 
 **Key design decisions:**
 - `HTTPClient` = `Sendable` struct wrapping `actor HTTPClientCore` for safe concurrent access
@@ -230,6 +233,8 @@ Homebrew tap, Swift Package Index listing, release automation.
 | iFoundation CLI | 8/8 | 2026-06-02 |
 | **Total** | **152/152** | **100%** |
 
+*Note: iFoundation CLI is the root project scaffolding tool, not a published package. Lives in this repo.*
+
 ---
 
 ## 🏛️ Architecture Decisions
@@ -243,6 +248,7 @@ Homebrew tap, Swift Package Index listing, release automation.
 | No website yet | Build packages first, website post-v1.0 | 2026-06-02 |
 | Agent-agnostic orchestration | Any model can build, any *different* model can review | 2026-06-02 |
 | Phase 2 simplified | AppNetworking builder-first (macros later), docs moved to CLI | 2026-06-02 |
+| 5-step per-child workflow | PLAN → REVIEW → EXECUTE → VERIFY → DOCUMENT | 2026-06-03 |
 
 ---
 
@@ -257,7 +263,8 @@ Homebrew tap, Swift Package Index listing, release automation.
 | AnvilNetwork | https://github.com/swiftanvil/swiftanvil-anvil-network |
 | CLI | https://github.com/swiftanvil/swiftanvil-cli |
 | **Workflow Guide** | **WORKFLOW.md** |
+| **Orchestration** | **ORCHESTRATION_FRAMEWORK.md** |
 
 ---
 
-*Last updated: 2026-06-02*
+*Last updated: 2026-06-03*
