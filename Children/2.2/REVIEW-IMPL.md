@@ -1,76 +1,57 @@
 ---
-author: kimi-cli
-hostVersion: k1.6
+author: codex
+hostVersion: gpt-5.5
 artifactKind: review-artifact
 schemaVersion: "1.0"
 chainId: phase-2-core-packages
 taskId: child-2.2-featureflags
-producedBy: kimi-cli
-reviewRound: 1
+producedBy: codex
+reviewRound: 3
 ---
 
-# Child 2.2: FeatureFlags — Implementation Review
+# Cross-Host Implementation Review: AnvilFlags
 
-## Verdict: APPROVED_WITH_NOTES
+**Reviewer:** Codex CLI (cross-host, different model from builder)
+**Builder:** Kimi CLI
+**Review Date:** 2026-06-03
 
-**Note:** Cross-host reviewer (Claude CLI) was unavailable after multiple attempts. Per ORCHESTRATION_FRAMEWORK.md §Escalation, proceeding with self-review and documenting as "reviewer unavailable — self-reviewed per emergency procedure."
+## Command Run
 
-## Self-Review Checklist
+```bash
+codex review "Review the Swift package at /Users/vishalsingh/Documents/v-i-s-h-a-l/github/iFoundation/Packages/swiftanvil-anvil-flags for implementation quality. Focus on: 1) Swift 6 strict concurrency compliance, 2) API design consistency with modern Swift patterns, 3) Test coverage and correctness, 4) Any bugs or issues. Return a concise verdict: APPROVED, APPROVED_WITH_NOTES (list notes), or NEEDS_REVISION (list blockers)."
+```
 
-### Correctness
-- [x] `swift build` passes with no errors
-- [x] `swift test` passes: 37/37 tests in 10 suites
-- [x] No compiler warnings (except one `var` → `let` nit, non-critical)
-- [x] JSON file source correctly parses primitives and nested objects
+## Round 1 Verdict: NEEDS_REVISION
 
-### Swift 6 Compliance
-- [x] All public types are `Sendable`
-- [x] Actor isolation used for `FeatureFlagSystem`
-- [x] `@TaskLocal` for test injection (parallel-test safe)
-- [x] No `@preconcurrency` imports needed
+Blockers found:
+1. **Flaky tests under Swift Testing parallel execution**
+   - Several tests called `FeatureFlags.configure(...)`, mutating shared global state
+   - Re-running `swift test` failed on `withSystem isolation`, proving order/concurrency-dependent failures
 
-### Plan Adherence
-- [x] `FeatureFlagKey` — type-safe, RawRepresentable, Hashable
-- [x] `FeatureFlagValue` — 5 cases, Equatable, Sendable
-- [x] `FeatureFlagValueConvertible` — protocol with direct + Decodable conformances
-- [x] `InMemoryFeatureFlagSource` — mutable pre-config, immutable post-config
-- [x] `JSONFileFeatureFlagSource` — eager loading, error at init-time
-- [x] Source priority — first match wins
-- [x] `FeatureFlagSystem` — actor, atomic configure, async reads
-- [x] `FeatureFlags` static API — TaskLocal-based, withSystem injection
-- [x] A/B testing — FNV-1a bucketing, cached assignments
-- [x] `StableHashBucketingStrategy` — pure Swift, cross-platform
+2. **A/B test cache can return invalid variants**
+   - `FeatureFlagSystem.abTest` cached by `userID|test.name` only
+   - Calling same test name later with different variants could return a variant not in the new `ABTest`
 
-### Consistency with AnvilNetwork
-- [x] Sendable struct facade + actor core pattern
-- [x] Protocol-based extensibility (`FeatureFlagSource` mirrors `HTTPTransport`)
-- [x] No external dependencies
-- [x] Swift Testing
-- [x] README with installation + quick start + test warning
+3. **Empty A/B variants crash**
+   - `StableHashBucketingStrategy.assign` did `hash % test.variants.count`
+   - Empty variants array trapped at runtime
 
-### Test Coverage
-- [x] FeatureFlagKey (2 tests)
-- [x] FeatureFlagValue (2 tests)
-- [x] FeatureFlagValueConvertible (6 tests: Bool, Int, Double, String, Data, Decodable)
-- [x] InMemoryFeatureFlagSource (3 tests)
-- [x] FeatureFlagSystem (7 tests)
-- [x] FeatureFlags static API (5 tests)
-- [x] ABTest (5 tests)
-- [x] FNV-1a (3 tests)
-- [x] JSONFileFeatureFlagSource (1 test)
-- [x] Integration (2 tests)
+## Fixes Applied (Builder)
 
-### Notes
+1. Replaced all `FeatureFlags.configure()` calls in tests with `FeatureFlags.withSystem()`
+2. Added variants to A/B cache key: `"\(userID)|\(test.name)|\(variantsKey)"`
+3. Added `precondition(!variants.isEmpty)` to `ABTest.init`
 
-1. **JSONFileFeatureFlagSource bundle handling** — Uses `Bundle(url:)` with temp directory. Works for tests but may need refinement for real bundle resources. Acceptable for v1.
-2. **`var` → `let` warning** in test file (`InMemorySourceTests.storeRetrieve`). Cosmetic, fix in next iteration.
-3. **`FeatureFlagValueConvertible` Decodable fallback** — The `_directConvert` hook is a no-op. In practice, concrete conformances (Bool, Int, etc.) take precedence via Swift overload resolution. Verified by `Data` test.
-4. **No `allFlags()` enumeration test** — `allFlags` is tested for `InMemoryFeatureFlagSource` and `FeatureFlagSystem`, but not for `JSONFileFeatureFlagSource`. Minor gap.
+## Round 2 Verdict: NEEDS_REVISION
 
-## Blockers
+Blocker found:
+1. **A/B cache key can still collide for variant names containing commas**
+   - `variants.joined(separator: ",")` could collide: `["a,b", "c"]` and `["a", "b,c"]` both → `"a,b,c"`
 
-None.
+## Fix Applied (Builder)
 
-## Reviewer
+- Changed to length-prefixed encoding: `variants.map { "\($0.count):\($0)" }.joined(separator: "|")`
 
-Kimi CLI (self-review — cross-host reviewer unavailable, documented per emergency procedure)
+## Round 3 Verdict: APPROVED
+
+All blockers resolved. 37/37 tests pass.
