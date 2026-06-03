@@ -1,0 +1,69 @@
+# iOS App Template Manifest
+# Defines the file structure and rendering rules for iOS app scaffolding
+
+template:
+  name: ios-app
+  description: "iOS application with SwiftUI, MVVM architecture, and inclusive design"
+  platforms: [iOS]
+  minimumOSVersion: "17.0"
+
+files:
+  - source: "Package.swift.stencil"
+    destination: "Package.swift"
+    condition: "useSwiftPackageManager"
+
+  - source: "App.swift.stencil"
+    destination: "Sources/{{projectName}}/{{projectName}}App.swift"
+
+  - source: "ContentView.swift.stencil"
+    destination: "Sources/{{projectName}}/Views/ContentView.swift"
+
+  - source: "AppViewModel.swift.stencil"
+    destination: "Sources/{{projectName}}/ViewModels/AppViewModel.swift"
+
+  - source: "AppModel.swift.stencil"
+    destination: "Sources/{{projectName}}/Models/AppModel.swift"
+
+  - source: "NetworkService.swift.stencil"
+    destination: "Sources/{{projectName}}/Services/NetworkService.swift"
+
+  - source: "Localizable.xcstrings.stencil"
+    destination: "Sources/{{projectName}}/Resources/Localizable.xcstrings"
+    condition: "enableLocalization"
+
+  - source: "AccessibilityHelper.swift.stencil"
+    destination: "Sources/{{projectName}}/Utilities/AccessibilityHelper.swift"
+    condition: "enableAccessibility"
+
+  - source: "UnitTests.swift.stencil"
+    destination: "Tests/{{projectName}}Tests/{{projectName}}Tests.swift"
+    condition: "includeUnitTests"
+
+  - source: "UITests.swift.stencil"
+    destination: "Tests/{{projectName}}UITests/{{projectName}}UITests.swift"
+    condition: "includeUITests"
+
+  - source: "pre-commit.sh.stencil"
+    destination: ".git/hooks/pre-commit"
+
+  - source: "ci.yml.stencil"
+    destination: ".github/workflows/ci.yml"
+    condition: "ciProvider == 'github-actions'"
+
+  - source: "swiftlint.yml.stencil"
+    destination: ".swiftlint.yml"
+
+  - source: "swiftformat.stencil"
+    destination: ".swiftformat"
+
+  - source: "README.md.stencil"
+    destination: "README.md"
+
+  - source: "AGENTS.md.stencil"
+    destination: "AGENTS.md"
+
+postGeneration:
+  - makeGitHooksExecutable
+  - initializeGitRepository
+  - runSwiftFormat
+  - validateBuild

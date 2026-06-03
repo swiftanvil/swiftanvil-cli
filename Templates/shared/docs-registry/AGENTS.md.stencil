@@ -1,0 +1,61 @@
+# {{projectName}} — Agent Guidelines
+
+## Project Overview
+
+This project was scaffolded with **iFoundation** — a Swift project scaffolding tool designed for the LLM era.
+
+## Architecture
+
+- **Pattern**: MVVM + I/O
+- **Framework**: {% if useSwiftUI %}SwiftUI{% else %}UIKit{% endif %}
+- **Minimum OS**: {{minimumOSVersion}}
+- **Package Manager**: {% if useSwiftPackageManager %}Swift Package Manager{% else %}Xcode Project{% endif %}
+
+## Key Principles
+
+1. **Host Agnosticism**: All scripts run across macOS, Linux, and CI.
+2. **SOLID**: Protocol-oriented design, dependency injection.
+3. **Accessibility First**: Every interactive view has `accessibilityIdentifier`.
+4. **Localization Ready**: All strings use `LocalizedStringKey`.
+5. **Test Coverage**: Unit, UI, and snapshot tests included.
+
+## Development Workflow
+
+```bash
+# Build
+swift build
+
+# Test
+swift test
+
+# Lint
+swiftlint lint
+swiftformat --lint .
+
+# Compose docs
+ifoundation docs compose
+
+# Health check
+ifoundation doctor
+```
+
+## Project Structure
+
+```
+Sources/
+├── {{projectName}}/
+│   ├── Models/          # Pure data structures
+│   ├── ViewModels/      # Observable objects
+│   ├── Views/           # SwiftUI views
+│   ├── Services/        # Business logic
+│   └── Utilities/       # Helpers
+Tests/
+├── {{projectName}}Tests/     # Unit tests
+└── {{projectName}}UITests/   # UI tests
+```
+
+## Enforcement
+
+- Pre-commit hooks run SwiftLint, SwiftFormat, and build checks
+- CI runs lint, test, accessibility audit, and localization checks
+- Immunity system monitors health and suggests improvements

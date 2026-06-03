@@ -1,0 +1,109 @@
+# Documentation Registry
+# Central routing registry for composed documentation
+# No hardcoded paths — all references go through this registry
+
+documents:
+  readme:
+    path: "Composed/README.md"
+    sources:
+      - "Templates/readme-header.md"
+      - "Fragments/principles/overview.md"
+      - "Fragments/workflows/quickstart.md"
+      - "Fragments/references/contributing.md"
+
+  architecture:
+    path: "Composed/ARCHITECTURE.md"
+    sources:
+      - "Templates/adr-header.md"
+      - "Fragments/principles/solid.md"
+      - "Fragments/patterns/mvvm.md"
+      - "Fragments/patterns/io-architecture.md"
+      - "Fragments/decisions/adr-001-project-structure.md"
+      - "Fragments/decisions/adr-002-host-agnosticism.md"
+
+  setup:
+    path: "Composed/SETUP.md"
+    sources:
+      - "Templates/setup-header.md"
+      - "Fragments/workflows/installation.md"
+      - "Fragments/workflows/configuration.md"
+      - "Fragments/workflows/build.md"
+      - "Fragments/workflows/test.md"
+
+  contributing:
+    path: "Composed/CONTRIBUTING.md"
+    sources:
+      - "Templates/contributing-header.md"
+      - "Fragments/principles/code-style.md"
+      - "Fragments/workflows/pull-requests.md"
+      - "Fragments/references/code-of-conduct.md"
+
+  type-safe-packages:
+    path: "Composed/TYPE_SAFE_PACKAGES.md"
+    sources:
+      - "Fragments/principles/type-safety-over-strings.md"
+      - "Fragments/patterns/shared-type-safe-packages.md"
+      - "Fragments/decisions/adr-003-localization-package.md"
+      - "Fragments/decisions/adr-004-accessibility-identifiers-package.md"
+
+  docc-strategy:
+    path: "Composed/DOCC_STRATEGY.md"
+    sources:
+      - "Fragments/decisions/adr-005-docc-documentation-strategy.md"
+      - "Fragments/patterns/docc-for-llm-context.md"
+
+  enforcement:
+    path: "Composed/ENFORCEMENT.md"
+    sources:
+      - "Fragments/decisions/adr-006-precommit-enforcement-rules.md"
+
+  vision:
+    path: "Composed/VISION.md"
+    sources:
+      - "Fragments/vision/comprehensive-grand-vision.md"
+
+  package-catalog:
+    path: "Composed/PACKAGE_CATALOG.md"
+    sources:
+      - "Fragments/decisions/adr-007-package-catalog-architecture.md"
+
+  configurable-wizard:
+    path: "Composed/CONFIGURABLE_WIZARD.md"
+    sources:
+      - "Fragments/decisions/adr-008-configurable-wizard-design.md"
+
+  open-source:
+    path: "Composed/OPEN_SOURCE.md"
+    sources:
+      - "Fragments/decisions/adr-009-open-source-strategy.md"
+
+  swift-scripting:
+    path: "Composed/SWIFT_SCRIPTING.md"
+    sources:
+      - "Fragments/decisions/adr-010-swift-scripting-strategy.md"
+
+  networking:
+    path: "Composed/NETWORKING.md"
+    sources:
+      - "Fragments/patterns/networking-layer-design.md"
+
+  developer-menu:
+    path: "Composed/DEVELOPER_MENU.md"
+    sources:
+      - "Fragments/patterns/developer-menu-implementation.md"
+
+  benchmarking:
+    path: "Composed/BENCHMARKING.md"
+    sources:
+      - "Fragments/patterns/benchmarking-infrastructure.md"
+
+  repository-structure:
+    path: "Composed/REPOSITORY_STRUCTURE.md"
+    sources:
+      - "Fragments/decisions/adr-011-repository-structure-strategy.md"
+      - "Fragments/patterns/leveraging-existing-code.md"
+
+  considerations:
+    path: "Composed/CONSIDERATIONS.md"
+    sources:
+      - "Fragments/considerations/what-to-consider.md"
