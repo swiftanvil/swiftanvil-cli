@@ -10,7 +10,7 @@
 |-------|-------|--------|----------|
 | [Phase 1](#phase-1-foundation) | Foundation | 🟢 Complete | 5/5 |
 | [Phase 2](#phase-2-core-packages) | Core Packages | 🟢 Complete | 3/3 |
-| [Phase 3](#phase-3-cli--integration) | CLI & Integration | ⚪ Planned | 0/5 |
+| [Phase 3](#phase-3-cli--integration) | CLI & Integration | 🟡 In Progress | 1/5 |
 | [Phase 4](#phase-4-ecosystem) | Ecosystem | ⚪ Planned | 0/3 |
 
 **Phase 2 Progress:** All children complete. Ready for Phase Gate 2→3.
@@ -186,9 +186,23 @@
 
 > The `swiftanvil` CLI tool that ties everything together.
 
-### 3.1 Wizard System
+### 3.1 Wizard System ✅
 
-Interactive CLI wizard for scaffolding new projects and packages.
+| Aspect | Detail |
+|--------|--------|
+| Repo | [`swiftanvil-anvil-wizard`](https://github.com/swiftanvil/swiftanvil-anvil-wizard) |
+| Source | Designed from scratch |
+| Core Types | `Wizard<Result>`, `WizardAnswers`, `Prompt<T>`, `TextPrompt`, `ConfirmPrompt`, `ChoicePrompt`, `InputReader`, `OutputWriter`, `TerminalInputReader`, `TerminalOutputWriter` |
+| Platforms | macOS 13+ |
+| Tests | 20/20 pass |
+| Review | ✅ Approved (Codex cross-host, 2 rounds plan + 2 rounds impl) |
+
+**Key design decisions:**
+- Generic `Wizard<Result>` with `(WizardAnswers) throws -> Result` closure for type-safe result construction
+- `Prompt<T>` protocol — extensible prompt system
+- `InputReader`/`OutputWriter` protocols for full testability (mock injection)
+- Terminal raw mode with ISIG disabled (Ctrl-C returns byte, not SIGINT), restored via `defer`
+- Non-interactive mode `.nonInteractive(answers:)` for CI/automation
 
 ### 3.2 Template Engine
 
@@ -238,8 +252,9 @@ Homebrew tap, Swift Package Index listing, release automation.
 | AnvilNetwork | 29/29 | 2026-06-03 |
 | AnvilFlags | 37/37 | 2026-06-03 |
 | AnvilDevMenu | 16/16 | 2026-06-03 |
+| AnvilWizard | 20/20 | 2026-06-03 |
 | iFoundation CLI | 8/8 | 2026-06-02 |
-| **Total** | **205/205** | **100%** |
+| **Total** | **225/225** | **100%** |
 
 *Note: iFoundation CLI is the root project scaffolding tool, not a published package. Lives in this repo.*
 
@@ -271,6 +286,7 @@ Homebrew tap, Swift Package Index listing, release automation.
 | AnvilNetwork | https://github.com/swiftanvil/swiftanvil-anvil-network |
 | AnvilFlags | https://github.com/swiftanvil/swiftanvil-anvil-flags |
 | AnvilDevMenu | https://github.com/swiftanvil/swiftanvil-anvil-devmenu |
+| AnvilWizard | https://github.com/swiftanvil/swiftanvil-anvil-wizard |
 | CLI | https://github.com/swiftanvil/swiftanvil-cli |
 | **Workflow Guide** | **WORKFLOW.md** |
 | **Orchestration** | **ORCHESTRATION_FRAMEWORK.md** |
@@ -284,8 +300,17 @@ Homebrew tap, Swift Package Index listing, release automation.
 ## Phase Gate: 2 → 3
 
 - [x] All Phase 2 children complete
-- [x] All Phase 2 children complete
 - [x] All Phase 2 children cross-host reviewed (Codex for impl, Claude for 2.1/2.2 plans)
 - [x] All review blockers fixed (3 rounds for some packages)
-- [ ] Phase 2 summary reviewed (pending cross-host reviewer)
-- [ ] **User approval to proceed** — awaiting go-ahead for Phase 3
+- [x] Phase 2 summary reviewed (Codex cross-host)
+- [x] **User approval to proceed** — Phase 3 started (Child 3.1 complete)
+
+---
+
+## Phase 3 Progress
+
+- [x] Child 3.1: Wizard System
+- [ ] Child 3.2: Template Engine
+- [ ] Child 3.3: Project Generator
+- [ ] Child 3.4: Documentation Generator
+- [ ] Child 3.5: Testing & Verification
