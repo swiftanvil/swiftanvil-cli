@@ -1,0 +1,90 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'swiftanvil-cli-*'
+
+jobs:
+  test:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: swift build
+      - name: Test
+        run: swift test
+
+  build-and-release:
+    needs: test
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build release binary
+        run: swift build -c release --arch arm64 --arch x86_64
+
+      - name: Verify signing identity
+        run: |
+          security find-identity -v -p codesigning | grep "Developer ID Application" || {
+            echo "Error: Developer ID signing identity not found"
+            exit 1
+          }
+
+      - name: Import signing certificate
+        env:
+          APPLE_DEVELOPER_ID_CERTIFICATE: ${{ secrets.APPLE_DEVELOPER_ID_CERTIFICATE }}
+          APPLE_DEVELOPER_ID_PASSWORD: ${{ secrets.APPLE_DEVELOPER_ID_PASSWORD }}
+        run: |
+          echo "$APPLE_DEVELOPER_ID_CERTIFICATE" | base64 -d > certificate.p12
+          security create-keychain -p "" build.keychain
+          security import certificate.p12 -k build.keychain -P "$APPLE_DEVELOPER_ID_PASSWORD" -T /usr/bin/codesign
+          security set-keychain-settings -lut 1200 build.keychain
+          security unlock-keychain -p "" build.keychain
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "" build.keychain
+          security list-keychains -s build.keychain $(security list-keychains | tr -d '"')
+
+      - name: Sign binary
+        run: |
+          codesign --sign "Developer ID Application" \
+            --force --options runtime --timestamp \
+            .build/apple/Products/Release/iFoundation
+
+      - name: Create zip for notarization
+        run: |
+          ditto -c -k --keepParent \
+            .build/apple/Products/Release/iFoundation \
+            swiftanvil.zip
+
+      - name: Notarize
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          xcrun notarytool submit swiftanvil.zip \
+            --apple-id "$APPLE_ID" \
+            --password "$APPLE_ID_PASSWORD" \
+            --team-id "$APPLE_TEAM_ID" \
+            --wait
+
+      - name: Staple
+        run: |
+          xcrun stapler staple .build/apple/Products/Release/iFoundation
+
+      - name: Verify signing
+        run: |
+          codesign -dv --verbose=4 .build/apple/Products/Release/iFoundation
+          codesign --verify --strict .build/apple/Products/Release/iFoundation
+
+      - name: Cleanup keychain
+        if: always()
+        run: security delete-keychain build.keychain
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: .build/apple/Products/Release/iFoundation
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
