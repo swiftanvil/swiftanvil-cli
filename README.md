@@ -79,6 +79,18 @@ ifoundation docs compose
 
 # Validate registry integrity
 ifoundation docs validate
+
+# Generate static HTML from DocC catalogs
+ifoundation docs generate --path ./MyPackage --output ./docs
+
+# Generate with GitHub Pages hosting base path
+ifoundation docs generate --path ./MyPackage --output ./docs --hosting-base-path my-package
+
+# Generate docs for a specific target
+ifoundation docs generate --path ./MyPackage --target MyTarget
+
+# Preview docs locally with auto-rebuild
+ifoundation docs preview --path ./MyPackage --port 8080
 ```
 
 ### Immunity System

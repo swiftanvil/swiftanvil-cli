@@ -15,6 +15,13 @@ jobs:
         run: swift build
       - name: Test
         run: swift test
+      - name: Docs Command Validation
+        run: |
+          # Verify docs subcommands are registered
+          .build/debug/iFoundation docs --help | grep -q "generate"
+          .build/debug/iFoundation docs --help | grep -q "preview"
+          .build/debug/iFoundation docs --help | grep -q "compose"
+          .build/debug/iFoundation docs --help | grep -q "validate"
 
   release-dry-run:
     runs-on: macos-15
