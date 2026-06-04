@@ -81,7 +81,7 @@ jobs:
   test-macos:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Build
         run: swift build
       - name: Test
@@ -92,7 +92,7 @@ jobs:
     container:
       image: swift:6.0
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Build
         run: swift build
       - name: Test

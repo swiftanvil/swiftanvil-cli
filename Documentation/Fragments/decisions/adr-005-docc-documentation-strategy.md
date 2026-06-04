@@ -100,7 +100,7 @@ jobs:
   docs:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - name: Check undocumented public APIs
         run: |

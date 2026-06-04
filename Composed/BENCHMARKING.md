@@ -224,7 +224,7 @@ jobs:
   benchmark:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - name: Run benchmarks
         run: swift package benchmark
