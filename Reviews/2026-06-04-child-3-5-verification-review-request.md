@@ -29,6 +29,13 @@ Please review the current branch diff against `main`, with emphasis on:
   - `swift run iFoundation verify --path <tmpdir>/VerificationProbe`
 - `../swiftanvil-enforcement/scripts/enforce-local.sh --root . --registry-root ../swiftanvil-meta`
 
+## Review Provenance
+
+| Phase | Reviewer | Model | Verdict | Rounds | Key Findings |
+| --- | --- | --- | --- | --- | --- |
+| plan | Codex | GPT-5 | APPROVED_WITH_NOTES | 1 | Chose CLI-owned static verifier first; defer package extraction and integration-test repo until shared ownership is proven. |
+| impl | Gemini | Gemini CLI | APPROVED_WITH_NOTES | 1 | Approved verifier foundation; recommended centralizing policy constants, which was addressed before PR. |
+
 ## Known Constraints
 
 - `swiftformat` is not installed on this machine, so formatting was compiler-checked and manually inspected.
