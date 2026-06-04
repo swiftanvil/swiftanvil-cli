@@ -15,6 +15,7 @@ struct iFoundationCommand: AsyncParsableCommand {
             DoctorCommand.self,
             DocsCommand.self,
             ImmunityCommand.self,
+            VerifyCommand.self,
         ],
         defaultSubcommand: CreateCommand.self
     )
