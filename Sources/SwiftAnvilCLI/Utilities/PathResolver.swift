@@ -34,7 +34,7 @@ enum PathResolver {
 
     /// Returns a centralized cache directory for the tool
     static var cacheDirectory: String {
-        let cachePath = "\(homeDirectory)/.ifoundation/cache"
+        let cachePath = "\(homeDirectory)/.swiftanvil/cache"
         try? FileManager.default.createDirectory(
             atPath: cachePath,
             withIntermediateDirectories: true
@@ -44,7 +44,7 @@ enum PathResolver {
 
     /// Returns a centralized temporary directory
     static var temporaryDirectory: String {
-        let tempPath = "\(homeDirectory)/.ifoundation/tmp"
+        let tempPath = "\(homeDirectory)/.swiftanvil/tmp"
         try? FileManager.default.createDirectory(
             atPath: tempPath,
             withIntermediateDirectories: true

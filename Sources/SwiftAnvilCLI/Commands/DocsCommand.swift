@@ -144,7 +144,7 @@ extension DocsCommand {
             // Generate docs first
             let result = try await generator.generate(
                 path: path,
-                output: "./.ifoundation/docs-preview",
+                output: "./.swiftanvil/docs-preview",
                 hostingBasePath: nil,
                 target: target
             )

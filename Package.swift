@@ -5,7 +5,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "iFoundation",
+    name: "SwiftAnvilCLI",
     platforms: [.macOS(.v15)],
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.5.0"),
@@ -14,7 +14,7 @@ let package = Package(
     ],
     targets: [
         .executableTarget(
-            name: "iFoundation",
+            name: "SwiftAnvilCLI",
             dependencies: [
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "Stencil", package: "Stencil"),
@@ -22,8 +22,8 @@ let package = Package(
             ]
         ),
         .testTarget(
-            name: "iFoundationTests",
-            dependencies: ["iFoundation"]
+            name: "SwiftAnvilCLITests",
+            dependencies: ["SwiftAnvilCLI"]
         ),
     ],
     swiftLanguageModes: [.v6]

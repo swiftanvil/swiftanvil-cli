@@ -1,9 +1,9 @@
-// iFoundationTests.swift
-// Unit tests for the iFoundation CLI tool
+// SwiftAnvilCLITests.swift
+// Unit tests for the SwiftAnvil CLI tool
 
 import Foundation
 import Testing
-@testable import iFoundation
+@testable import SwiftAnvilCLI
 
 struct ProjectConfigTests {
     @Test func defaultOptions() async throws {

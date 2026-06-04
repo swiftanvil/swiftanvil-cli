@@ -6,7 +6,7 @@ import Foundation
 /// Guides the user through interactive project configuration
 struct InteractiveWizard {
     func run(projectName: String) async throws -> ProjectConfig {
-        print("\n🚀 iFoundation Project Wizard")
+        print("\n🚀 SwiftAnvil Project Wizard")
         print("─────────────────────────────\n")
 
         // Template selection

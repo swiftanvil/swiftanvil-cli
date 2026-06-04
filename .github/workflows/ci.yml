@@ -18,10 +18,10 @@ jobs:
       - name: Docs Command Validation
         run: |
           # Verify docs subcommands are registered
-          .build/debug/iFoundation docs --help | grep -q "generate"
-          .build/debug/iFoundation docs --help | grep -q "preview"
-          .build/debug/iFoundation docs --help | grep -q "compose"
-          .build/debug/iFoundation docs --help | grep -q "validate"
+          .build/debug/SwiftAnvilCLI docs --help | grep -q "generate"
+          .build/debug/SwiftAnvilCLI docs --help | grep -q "preview"
+          .build/debug/SwiftAnvilCLI docs --help | grep -q "compose"
+          .build/debug/SwiftAnvilCLI docs --help | grep -q "validate"
 
   release-dry-run:
     runs-on: macos-15
@@ -31,4 +31,4 @@ jobs:
       - name: Build release binary
         run: swift build -c release
       - name: Verify binary exists
-        run: test -f .build/release/iFoundation
+        run: test -f .build/release/SwiftAnvilCLI

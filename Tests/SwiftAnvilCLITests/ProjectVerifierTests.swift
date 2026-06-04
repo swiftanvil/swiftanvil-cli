@@ -3,7 +3,7 @@
 
 import Foundation
 import Testing
-@testable import iFoundation
+@testable import SwiftAnvilCLI
 
 struct ProjectVerifierTests {
     @Test func validGeneratedProjectContractPasses() async throws {

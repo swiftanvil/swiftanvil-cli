@@ -48,12 +48,12 @@ jobs:
         run: |
           codesign --sign "Developer ID Application" \
             --force --options runtime --timestamp \
-            .build/apple/Products/Release/iFoundation
+            .build/apple/Products/Release/SwiftAnvilCLI
 
       - name: Create zip for notarization
         run: |
           ditto -c -k --keepParent \
-            .build/apple/Products/Release/iFoundation \
+            .build/apple/Products/Release/SwiftAnvilCLI \
             swiftanvil.zip
 
       - name: Notarize
@@ -70,12 +70,12 @@ jobs:
 
       - name: Staple
         run: |
-          xcrun stapler staple .build/apple/Products/Release/iFoundation
+          xcrun stapler staple .build/apple/Products/Release/SwiftAnvilCLI
 
       - name: Verify signing
         run: |
-          codesign -dv --verbose=4 .build/apple/Products/Release/iFoundation
-          codesign --verify --strict .build/apple/Products/Release/iFoundation
+          codesign -dv --verbose=4 .build/apple/Products/Release/SwiftAnvilCLI
+          codesign --verify --strict .build/apple/Products/Release/SwiftAnvilCLI
 
       - name: Cleanup keychain
         if: always()
@@ -84,7 +84,7 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          files: .build/apple/Products/Release/iFoundation
+          files: .build/apple/Products/Release/SwiftAnvilCLI
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

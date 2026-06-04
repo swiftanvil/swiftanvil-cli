@@ -4,7 +4,7 @@
 import ArgumentParser
 import Foundation
 import Testing
-@testable import iFoundation
+@testable import SwiftAnvilCLI
 
 // MARK: - DocCGenerator Tests
 
