@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  test:
+  build-and-test:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
@@ -22,6 +22,17 @@ jobs:
           .build/debug/SwiftAnvilCLI docs --help | grep -q "preview"
           .build/debug/SwiftAnvilCLI docs --help | grep -q "compose"
           .build/debug/SwiftAnvilCLI docs --help | grep -q "validate"
+
+  lint:
+    needs: build-and-test
+    uses: swiftanvil/swiftanvil-enforcement/.github/workflows/swift-lint.yml@v1
+    with:
+      swiftanvil-version: 'latest'
+      lint-package: true
+      lint-source: true
+      lint-tests: true
+      lint-dependencies: true
+      fail-on-warning: false
 
   release-dry-run:
     runs-on: macos-15
