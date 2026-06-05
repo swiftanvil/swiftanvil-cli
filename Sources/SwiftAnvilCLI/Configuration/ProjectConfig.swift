@@ -24,6 +24,9 @@ struct ProjectConfig: Codable, Sendable {
     var ciProvider: String { options["ciProvider"]?.stringValue ?? "github-actions" }
     var useSelfHostedRunners: Bool { options["useSelfHostedRunners"]?.boolValue ?? false }
     var enableImmunity: Bool { options["enableImmunity"]?.boolValue ?? true }
+
+    /// Whether this project is a macOS app template
+    var isMacOSApp: Bool { template == "macos-app" }
 }
 
 /// Type-safe configuration values

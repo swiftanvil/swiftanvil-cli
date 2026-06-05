@@ -37,6 +37,27 @@ struct ProjectConfigTests {
         #expect(config.enableAccessibility == false)
         #expect(config.targetLanguages == ["en", "ja"])
     }
+
+    @Test func macOSAppTemplateDetection() async throws {
+        let config = ProjectConfig(
+            template: "macos-app",
+            projectName: "MyMacApp",
+            options: [:]
+        )
+
+        #expect(config.isMacOSApp == true)
+        #expect(config.template == "macos-app")
+    }
+
+    @Test func iOSAppTemplateIsNotMacOS() async throws {
+        let config = ProjectConfig(
+            template: "ios-app",
+            projectName: "MyiOSApp",
+            options: [:]
+        )
+
+        #expect(config.isMacOSApp == false)
+    }
 }
 
 struct PathResolverTests {
