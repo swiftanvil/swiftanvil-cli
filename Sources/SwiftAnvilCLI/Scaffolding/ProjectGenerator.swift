@@ -52,6 +52,12 @@ actor ProjectGenerator {
 
         // Generate AGENTS.md
         try await generateAgentsMD(at: destination, config: config)
+
+        // Generate README.md
+        try await generateREADME(at: destination, config: config)
+
+        // Generate .gitignore
+        try await generateGitignore(at: destination, config: config)
     }
 
     // MARK: - Private Helpers
@@ -739,6 +745,81 @@ actor ProjectGenerator {
 
         try agentsMD.write(
             to: destination.appendingPathComponent("AGENTS.md"),
+            atomically: true,
+            encoding: .utf8
+        )
+    }
+
+    private func generateREADME(at destination: URL, config: ProjectConfig) async throws {
+        let platform = config.isMacOSApp ? "macOS 15+" : "iOS 17+, macOS 14+"
+        let buildBadge = "![Swift](https://img.shields.io/badge/Swift-6.0-orange)"
+        let platformBadge = config.isMacOSApp
+            ? "![macOS](https://img.shields.io/badge/macOS-15%2B-blue)"
+            : "![iOS](https://img.shields.io/badge/iOS-17%2B-blue)"
+
+        let readme = """
+        # \(config.projectName)
+
+        \(buildBadge) \(platformBadge)
+
+        > Generated with [SwiftAnvil](https://github.com/swiftanvil)
+
+        ## Build
+
+        ```bash
+        swift build
+        ```
+
+        ## Test
+
+        ```bash
+        swift test
+        ```
+
+        ## Platform
+
+        - \(platform)
+        - Swift 6 strict concurrency
+
+        ## Structure
+
+        ```
+        Sources/
+        ├── \(config.projectName)/
+        │   ├── Models/
+        │   ├── ViewModels/
+        │   ├── Views/
+        │   ├── Services/
+        │   └── Utilities/
+        └── Tests/
+            └── \(config.projectName)Tests/
+        ```
+        """
+
+        try readme.write(
+            to: destination.appendingPathComponent("README.md"),
+            atomically: true,
+            encoding: .utf8
+        )
+    }
+
+    private func generateGitignore(at destination: URL, config: ProjectConfig) async throws {
+        let gitignore = """
+        .build/
+        .swiftpm/
+        *.xcodeproj
+        *.xcworkspace
+        DerivedData/
+        .DS_Store
+        *.swp
+        *.swo
+        *~
+        .idea/
+        .vscode/
+        """
+
+        try gitignore.write(
+            to: destination.appendingPathComponent(".gitignore"),
             atomically: true,
             encoding: .utf8
         )
