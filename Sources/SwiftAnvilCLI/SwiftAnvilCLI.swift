@@ -11,6 +11,7 @@ struct SwiftAnvilCommand: AsyncParsableCommand {
         abstract: "Swift project scaffolding with architectural enforcement",
         version: "0.3.0",
         subcommands: [
+            AdoptCommand.self,
             CreateCommand.self,
             DoctorCommand.self,
             DocsCommand.self,
