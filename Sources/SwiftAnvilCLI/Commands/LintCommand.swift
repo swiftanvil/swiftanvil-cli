@@ -119,8 +119,12 @@ struct LintCommand: AsyncParsableCommand {
         @Option(name: .shortAndLong, help: "Project directory")
         var path: String = FileManager.default.currentDirectoryPath
 
+        @Flag(name: .long, help: "Enable structure checks (file size, top-level types)")
+        var structure: Bool = false
+
         mutating func run() async throws {
             let resolved = PathResolver.resolve(path)
+            let config = SwiftAnvilConfigLoader.load(from: resolved)
             let sourcesPath = (resolved as NSString).appendingPathComponent("Sources")
             let fm = FileManager.default
 
@@ -150,6 +154,9 @@ struct LintCommand: AsyncParsableCommand {
                         fileCount += 1
                         if let content = try? String(contentsOfFile: fullPath, encoding: .utf8) {
                             lintSourceFile(content, path: fullPath, issues: &issues)
+                            if structure {
+                                lintSourceStructure(content, path: fullPath, config: config.lint.structure, issues: &issues)
+                            }
                         }
                     }
                 }
@@ -216,6 +223,54 @@ struct LintCommand: AsyncParsableCommand {
                         fix: "Add '/// Description' before public declaration"
                     ))
                 }
+            }
+        }
+
+        func lintSourceStructure(_ content: String, path: String, config: LintStructureConfig, issues: inout [LintIssue]) {
+            let filename = (path as NSString).lastPathComponent
+            let lines = content.components(separatedBy: .newlines)
+
+            // Line count check
+            if lines.count > config.maxLines {
+                issues.append(LintIssue(
+                    severity: .error,
+                    message: "File \(filename) has \(lines.count) lines (max: \(config.maxLines))",
+                    fix: "Split into smaller files or raise max_lines in .swiftanvil.yml"
+                ))
+            }
+
+            // Top-level type detection
+            let typePattern = "^(public |internal |private |fileprivate )?(class|struct|enum|actor|protocol|extension) "
+            guard let regex = try? NSRegularExpression(pattern: typePattern, options: []) else { return }
+
+            var typeKinds: Set<String> = []
+            var typeCount = 0
+
+            for line in lines {
+                let range = NSRange(line.startIndex..., in: line)
+                if let match = regex.firstMatch(in: line, options: [], range: range) {
+                    typeCount += 1
+                    let kindRange = match.range(at: 2)
+                    if let swiftRange = Range(kindRange, in: line) {
+                        typeKinds.insert(String(line[swiftRange]))
+                    }
+                }
+            }
+
+            if typeCount > config.maxTopLevelTypes {
+                issues.append(LintIssue(
+                    severity: .error,
+                    message: "File \(filename) has \(typeCount) top-level types (max: \(config.maxTopLevelTypes))",
+                    fix: "Consolidate or split types across files"
+                ))
+            }
+
+            if typeKinds.count >= config.mixedTypeKinds {
+                issues.append(LintIssue(
+                    severity: .warning,
+                    message: "File \(filename) mixes \(typeKinds.count) different type kinds (\(typeKinds.sorted().joined(separator: ", ")))",
+                    fix: "Keep related types together; avoid mixing unrelated kinds in one file"
+                ))
             }
         }
     }
