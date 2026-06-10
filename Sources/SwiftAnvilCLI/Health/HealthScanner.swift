@@ -37,13 +37,13 @@ struct HealthScanner {
             }
         }
 
-        if !quick { add(try await scanTests()) }
-        add(await scanFormat())
-        add(await scanLint())
-        add(try await scanBuildAudit())
-        add(await scanStructure())
-        add(try await scanLogging())
-        add(try await scanNetwork())
+        if !quick { try await add(scanTests()) }
+        await add(scanFormat())
+        await add(scanLint())
+        try await add(scanBuildAudit())
+        await add(scanStructure())
+        try await add(scanLogging())
+        try await add(scanNetwork())
 
         let formatter = ISO8601DateFormatter()
         formatter.timeZone = TimeZone(identifier: "UTC")

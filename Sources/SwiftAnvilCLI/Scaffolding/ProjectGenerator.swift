@@ -736,6 +736,51 @@ actor ProjectGenerator {
             atomically: true,
             encoding: .utf8
         )
+
+        let blockWorkflow = """
+        name: Block Direct Push
+
+        on:
+          push:
+            branches: [main]
+
+        jobs:
+          block-direct-push:
+            runs-on: ubuntu-latest
+            steps:
+              - name: Check if push is from merged PR
+                env:
+                  GH_TOKEN: ${{ github.token }}
+                run: |
+                  sha="${{ github.sha }}"
+                  repo="${{ github.repository }}"
+
+                  prs=$(gh api "repos/$repo/commits/$sha/pulls" \\
+                    --jq '.[] | select(.state == "closed" and .merged == true) | .number' 2>/dev/null || true)
+
+                  if [ -n "$prs" ]; then
+                    echo "✅ Commit is from merged PR(s): $prs"
+                    exit 0
+                  fi
+
+                  parents=$(gh api "repos/$repo/commits/$sha" \\
+                    --jq '.parents | length' 2>/dev/null || echo "0")
+                  if [ "$parents" -gt 1 ]; then
+                    echo "✅ Merge commit detected — allowing"
+                    exit 0
+                  fi
+
+                  echo "❌ DIRECT PUSH TO MAIN DETECTED" >&2
+                  echo "Pushing directly to main is prohibited." >&2
+                  echo "All work must go through a feature branch and PR." >&2
+                  exit 1
+        """
+
+        try blockWorkflow.write(
+            to: workflowsDir.appendingPathComponent("block-direct-push.yml"),
+            atomically: true,
+            encoding: .utf8
+        )
     }
 
     private func generateDocumentationRegistry(at destination: URL, config _: ProjectConfig) async throws {

@@ -197,4 +197,27 @@ struct IOSAppTemplateTests {
 
         #expect(content.contains("XCUIApplication"))
     }
+
+    @Test("iOS template generates block-direct-push workflow")
+    func iOSGeneratesBlockDirectPushWorkflow() async throws {
+        let fm = FileManager.default
+        let tempDir = fm.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? fm.removeItem(at: tempDir) }
+
+        let config = ProjectConfig(
+            template: "ios-app",
+            projectName: "MyiOSApp",
+            options: [:]
+        )
+
+        let generator = ProjectGenerator()
+        try await generator.generate(projectName: "MyiOSApp", config: config, outputPath: tempDir.path)
+
+        let workflowPath = tempDir.appendingPathComponent("MyiOSApp/.github/workflows/block-direct-push.yml")
+        #expect(fm.fileExists(atPath: workflowPath.path))
+
+        let content = try String(contentsOf: workflowPath, encoding: .utf8)
+        #expect(content.contains("Block Direct Push"))
+        #expect(content.contains("DIRECT PUSH TO MAIN DETECTED"))
+    }
 }
