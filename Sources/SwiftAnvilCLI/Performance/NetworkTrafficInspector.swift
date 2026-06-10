@@ -63,7 +63,7 @@ struct NetworkTrafficInspector {
                 {
                     let urlRegex = try? NSRegularExpression(pattern: "https?://[^\\s\"'`]+")
                     let range = NSRange(trimmed.startIndex..., in: trimmed)
-                    if let match = urlRegex?.firstMatch(in: trimmed, options: [], range: range) {
+                    if urlRegex?.firstMatch(in: trimmed, options: [], range: range) != nil {
                         findings.append(NetworkFinding(
                             file: file,
                             line: lineNum,
