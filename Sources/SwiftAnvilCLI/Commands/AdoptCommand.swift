@@ -401,12 +401,13 @@ struct ProjectAdopter {
         let enforcementRoot = path.components(separatedBy: "/swiftanvil-")
             .first.map { "\($0)/swiftanvil-enforcement" } ?? ""
         let canonicalPath = "\(enforcementRoot)/configs/swiftformat.yml"
-        let content: String
-        if FileManager.default.fileExists(atPath: canonicalPath),
-           let canonical = try? String(contentsOfFile: canonicalPath, encoding: .utf8) {
-            content = canonical
+        let content: String = if
+            FileManager.default.fileExists(atPath: canonicalPath),
+            let canonical = try? String(contentsOfFile: canonicalPath, encoding: .utf8)
+        {
+            canonical
         } else {
-            content = "# SwiftFormat config\n--indent 4\n--max-width 120"
+            "# SwiftFormat config\n--indent 4\n--max-width 120"
         }
         try writeFile(content, to: ".swiftformat")
     }
@@ -415,12 +416,13 @@ struct ProjectAdopter {
         let enforcementRoot = path.components(separatedBy: "/swiftanvil-")
             .first.map { "\($0)/swiftanvil-enforcement" } ?? ""
         let canonicalPath = "\(enforcementRoot)/configs/swiftlint.yml"
-        let content: String
-        if FileManager.default.fileExists(atPath: canonicalPath),
-           let canonical = try? String(contentsOfFile: canonicalPath, encoding: .utf8) {
-            content = canonical
+        let content: String = if
+            FileManager.default.fileExists(atPath: canonicalPath),
+            let canonical = try? String(contentsOfFile: canonicalPath, encoding: .utf8)
+        {
+            canonical
         } else {
-            content = "disabled_rules:\n  - trailing_comma\n  - trailing_newline"
+            "disabled_rules:\n  - trailing_comma\n  - trailing_newline"
         }
         try writeFile(content, to: ".swiftlint.yml")
     }

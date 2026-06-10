@@ -612,18 +612,34 @@ actor ProjectGenerator {
         let lintConfigPath = "\(enforcementRoot)/configs/swiftlint.yml"
 
         let fm = FileManager.default
-        if fm.fileExists(atPath: fmtConfigPath),
-           let content = try? String(contentsOfFile: fmtConfigPath, encoding: .utf8) {
+        if
+            fm.fileExists(atPath: fmtConfigPath),
+            let content = try? String(contentsOfFile: fmtConfigPath, encoding: .utf8)
+        {
             try content.write(to: destination.appendingPathComponent(".swiftformat"), atomically: true, encoding: .utf8)
         } else {
-            try "# SwiftFormat config\n--indent 4\n--max-width 120".write(to: destination.appendingPathComponent(".swiftformat"), atomically: true, encoding: .utf8)
+            try "# SwiftFormat config\n--indent 4\n--max-width 120".write(
+                to: destination.appendingPathComponent(".swiftformat"),
+                atomically: true,
+                encoding: .utf8
+            )
         }
 
-        if fm.fileExists(atPath: lintConfigPath),
-           let content = try? String(contentsOfFile: lintConfigPath, encoding: .utf8) {
-            try content.write(to: destination.appendingPathComponent(".swiftlint.yml"), atomically: true, encoding: .utf8)
+        if
+            fm.fileExists(atPath: lintConfigPath),
+            let content = try? String(contentsOfFile: lintConfigPath, encoding: .utf8)
+        {
+            try content.write(
+                to: destination.appendingPathComponent(".swiftlint.yml"),
+                atomically: true,
+                encoding: .utf8
+            )
         } else {
-            try "disabled_rules:\n  - trailing_comma\n  - trailing_newline".write(to: destination.appendingPathComponent(".swiftlint.yml"), atomically: true, encoding: .utf8)
+            try "disabled_rules:\n  - trailing_comma\n  - trailing_newline".write(
+                to: destination.appendingPathComponent(".swiftlint.yml"),
+                atomically: true,
+                encoding: .utf8
+            )
         }
 
         let swiftanvilYml = """
@@ -634,7 +650,11 @@ actor ProjectGenerator {
             max_top_level_types: 4
             mixed_type_kinds: 3
         """
-        try swiftanvilYml.write(to: destination.appendingPathComponent(".swiftanvil.yml"), atomically: true, encoding: .utf8)
+        try swiftanvilYml.write(
+            to: destination.appendingPathComponent(".swiftanvil.yml"),
+            atomically: true,
+            encoding: .utf8
+        )
     }
 
     private func generateGitHooks(at destination: URL, config _: ProjectConfig) async throws {
