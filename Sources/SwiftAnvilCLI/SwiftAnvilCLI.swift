@@ -12,6 +12,7 @@ struct SwiftAnvilCommand: AsyncParsableCommand {
         version: "0.3.0",
         subcommands: [
             AdoptCommand.self,
+            BuildCommand.self,
             CreateCommand.self,
             DoctorCommand.self,
             DocsCommand.self,
