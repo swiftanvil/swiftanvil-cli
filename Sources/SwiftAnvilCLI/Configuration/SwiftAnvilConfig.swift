@@ -12,6 +12,23 @@ struct SwiftAnvilConfig: Codable {
 /// Lint-specific configuration.
 struct LintConfig: Codable {
     var structure: LintStructureConfig = .init()
+    var solid: LintSolidConfig = .init()
+
+    init(structure: LintStructureConfig = .init(), solid: LintSolidConfig = .init()) {
+        self.structure = structure
+        self.solid = solid
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        structure = try container.decodeIfPresent(LintStructureConfig.self, forKey: .structure) ?? .init()
+        solid = try container.decodeIfPresent(LintSolidConfig.self, forKey: .solid) ?? .init()
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case structure
+        case solid
+    }
 }
 
 /// Structure lint thresholds.
@@ -24,6 +41,17 @@ struct LintStructureConfig: Codable {
         case maxLines = "max_lines"
         case maxTopLevelTypes = "max_top_level_types"
         case mixedTypeKinds = "mixed_type_kinds"
+    }
+}
+
+/// SOLID lint thresholds.
+struct LintSolidConfig: Codable {
+    var maxProtocolRequirements: Int = 5
+    var maxPublicConcreteDependencies: Int = 3
+
+    enum CodingKeys: String, CodingKey {
+        case maxProtocolRequirements = "max_protocol_requirements"
+        case maxPublicConcreteDependencies = "max_public_concrete_dependencies"
     }
 }
 

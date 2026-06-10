@@ -134,3 +134,154 @@ struct SourceStructureLinterTests {
         #expect(issues.contains { $0.message.contains("3 top-level types") })
     }
 }
+
+struct SolidLinterTests {
+    @Test("passes for clean file")
+    func passesCleanFile() {
+        let content = """
+        struct SmallModel {
+            let name: String
+        }
+        """
+        var issues: [LintCommand.LintIssue] = []
+        let config = SwiftAnvilConfig()
+        let linter = LintCommand.SolidLint()
+        linter.lintSolidHeuristics(content, path: "/tmp/Clean.swift", config: config, issues: &issues)
+        #expect(issues.isEmpty)
+    }
+
+    @Test("warns on switch without default over enum")
+    func warnsOnSwitchWithoutDefault() {
+        let content = """
+        enum Color { case red, green, blue }
+        func describe(_ color: Color) -> String {
+            switch color {
+            case .red: return "red"
+            case .green: return "green"
+            }
+        }
+        """
+        var issues: [LintCommand.LintIssue] = []
+        let config = SwiftAnvilConfig()
+        let linter = LintCommand.SolidLint()
+        linter.lintSolidHeuristics(content, path: "/tmp/Switch.swift", config: config, issues: &issues)
+        #expect(issues.contains { $0.severity == .warning && $0.message.contains("OCP") })
+    }
+
+    @Test("warns on protocol downcast")
+    func warnsOnProtocolDowncast() {
+        let content = """
+        protocol Drawable {}
+        func draw(_ item: Drawable) {
+            if let shape = item as? Circle {
+                _ = shape
+            }
+        }
+        """
+        var issues: [LintCommand.LintIssue] = []
+        let config = SwiftAnvilConfig()
+        let linter = LintCommand.SolidLint()
+        linter.lintSolidHeuristics(content, path: "/tmp/Cast.swift", config: config, issues: &issues)
+        #expect(issues.contains { $0.severity == .warning && $0.message.contains("Protocol cast") })
+    }
+
+    @Test("warns on protocol with too many requirements")
+    func warnsOnFatProtocol() {
+        let content = """
+        protocol FatProtocol {
+            func a()
+            func b()
+            func c()
+            func d()
+            func e()
+            func f()
+        }
+        """
+        var issues: [LintCommand.LintIssue] = []
+        let config = SwiftAnvilConfig()
+        let linter = LintCommand.SolidLint()
+        linter.lintSolidHeuristics(content, path: "/tmp/Fat.swift", config: config, issues: &issues)
+        #expect(issues.contains { $0.severity == .warning && $0.message.contains("6 requirements") })
+    }
+
+    @Test("info on public API with concrete dependency")
+    func infoOnConcreteDependency() {
+        let content = """
+        public struct Service {
+            public init(client: HTTPClient) {}
+        }
+        """
+        var issues: [LintCommand.LintIssue] = []
+        let config = SwiftAnvilConfig()
+        let linter = LintCommand.SolidLint()
+        linter.lintSolidHeuristics(content, path: "/tmp/Concrete.swift", config: config, issues: &issues)
+        #expect(issues.contains { $0.severity == .info && $0.message.contains("concrete type") })
+    }
+
+    @Test("respects custom protocol requirement budget")
+    func respectsCustomProtocolBudget() {
+        let content = """
+        protocol MyProtocol {
+            func a()
+            func b()
+            func c()
+        }
+        """
+        var issues: [LintCommand.LintIssue] = []
+        var config = SwiftAnvilConfig()
+        config.lint.solid.maxProtocolRequirements = 2
+        let linter = LintCommand.SolidLint()
+        linter.lintSolidHeuristics(content, path: "/tmp/CustomProtocol.swift", config: config, issues: &issues)
+        #expect(issues.contains { $0.message.contains("3 requirements") })
+    }
+}
+
+struct TypeSafetyLinterTests {
+    @Test("warns on hardcoded Text string")
+    func warnsOnHardcodedText() {
+        // swiftlint:disable hardcoded_display_string
+        let content = """
+        struct MyView: View {
+            var body: some View {
+                Text("Hello, world!")
+            }
+        }
+        """
+        // swiftlint:enable hardcoded_display_string
+        var issues: [LintCommand.LintIssue] = []
+        let config = SwiftAnvilConfig()
+        let linter = LintCommand.SourceLint()
+        linter.lintSourceFile(content, path: "/tmp/View.swift", config: config, issues: &issues)
+        #expect(issues.contains { $0.severity == .warning && $0.message.contains("Text") })
+    }
+
+    @Test("warns on raw accessibilityIdentifier")
+    func warnsOnRawAccessibilityIdentifier() {
+        // swiftlint:disable hardcoded_display_string raw_accessibility_identifier
+        let content = """
+        Button("Tap").accessibilityIdentifier("tap_button")
+        """
+        // swiftlint:enable hardcoded_display_string raw_accessibility_identifier
+        var issues: [LintCommand.LintIssue] = []
+        let config = SwiftAnvilConfig()
+        let linter = LintCommand.SourceLint()
+        linter.lintSourceFile(content, path: "/tmp/A11y.swift", config: config, issues: &issues)
+        #expect(issues.contains { $0.severity == .warning && $0.message.contains("accessibilityIdentifier") })
+    }
+
+    @Test("passes when no hardcoded strings present")
+    func passesCleanStrings() {
+        let content = """
+        struct MyView: View {
+            var body: some View {
+                Text(AppStrings.greeting)
+            }
+        }
+        """
+        var issues: [LintCommand.LintIssue] = []
+        let config = SwiftAnvilConfig()
+        let linter = LintCommand.SourceLint()
+        linter.lintSourceFile(content, path: "/tmp/CleanView.swift", config: config, issues: &issues)
+        #expect(!issues.contains { $0.message.contains("raw string") })
+    }
+}

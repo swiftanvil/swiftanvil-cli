@@ -12,6 +12,7 @@ struct LintCommand: AsyncParsableCommand {
         subcommands: [
             PackageLint.self,
             SourceLint.self,
+            SolidLint.self,
             TestLint.self,
             DependencyLint.self
         ]
@@ -122,8 +123,8 @@ struct LintCommand: AsyncParsableCommand {
         @Option(name: .shortAndLong, help: "Project directory")
         var path: String = FileManager.default.currentDirectoryPath
 
-        @Flag(name: .long, help: "Enable structure checks (file size, top-level types)")
-        var structure: Bool = false
+        @Flag(name: .long, help: "Skip structure checks")
+        var noStructure: Bool = false
 
         mutating func run() async throws {
             let resolved = PathResolver.resolve(path)
@@ -156,8 +157,8 @@ struct LintCommand: AsyncParsableCommand {
                     } else if entry.hasSuffix(".swift"), !entry.contains("LintCommand") {
                         fileCount += 1
                         if let content = try? String(contentsOfFile: fullPath, encoding: .utf8) {
-                            lintSourceFile(content, path: fullPath, issues: &issues)
-                            if structure {
+                            lintSourceFile(content, path: fullPath, config: config, issues: &issues)
+                            if !noStructure {
                                 lintSourceStructure(
                                     content,
                                     path: fullPath,
@@ -188,7 +189,12 @@ struct LintCommand: AsyncParsableCommand {
             if !passed { throw ExitCode.failure }
         }
 
-        private func lintSourceFile(_ content: String, path: String, issues: inout [LintIssue]) {
+        func lintSourceFile(
+            _ content: String,
+            path: String,
+            config _: SwiftAnvilConfig,
+            issues: inout [LintIssue]
+        ) {
             let filename = (path as NSString).lastPathComponent
 
             // swiftlint:disable available_check
@@ -216,6 +222,26 @@ struct LintCommand: AsyncParsableCommand {
                     issues.append(LintIssue(
                         severity: .warning,
                         message: "Found '\(pattern)' in \(filename)",
+                        fix: suggestion
+                    ))
+                }
+            }
+
+            // swiftlint:disable raw_accessibility_identifier
+            // Type-safety-over-strings heuristic
+            let typeSafetyPatterns = [
+                ("Text(\"", "Use AppStrings for user-facing text"),
+                ("Button(\"", "Use AppStrings for user-facing text"),
+                ("navigationTitle(\"", "Use AppStrings for user-facing text"),
+                (".accessibilityIdentifier(\"", "Use .a11yID() with typed A11yID"),
+                ("Notification.Name(\"", "Use typed notification names")
+            ]
+            // swiftlint:enable raw_accessibility_identifier
+            for (pattern, suggestion) in typeSafetyPatterns {
+                if content.contains(pattern) {
+                    issues.append(LintIssue(
+                        severity: .warning,
+                        message: "Found raw string pattern '\(pattern)' in \(filename)",
                         fix: suggestion
                     ))
                 }
@@ -292,6 +318,166 @@ struct LintCommand: AsyncParsableCommand {
                     message: "File \(filename) mixes \(typeKinds.count) different type kinds (\(typeKinds.sorted().joined(separator: ", ")))",
                     fix: "Keep related types together; avoid mixing unrelated kinds in one file"
                 ))
+            }
+        }
+    }
+
+    // MARK: - SOLID Lint
+
+    struct SolidLint: AsyncParsableCommand {
+        static let configuration = CommandConfiguration(
+            commandName: "solid",
+            abstract: "Check SOLID principle conformance"
+        )
+
+        @Option(name: .shortAndLong, help: "Project directory")
+        var path: String = FileManager.default.currentDirectoryPath
+
+        mutating func run() async throws {
+            let resolved = PathResolver.resolve(path)
+            let config = SwiftAnvilConfigLoader.load(from: resolved)
+            let sourcesPath = (resolved as NSString).appendingPathComponent("Sources")
+            let fm = FileManager.default
+
+            guard fm.fileExists(atPath: sourcesPath) else {
+                print("❌ No Sources/ directory found")
+                throw ExitCode.failure
+            }
+
+            var issues: [LintIssue] = []
+            var fileCount = 0
+
+            func scanDirectory(_ dir: String) {
+                guard let entries = try? fm.contentsOfDirectory(atPath: dir) else { return }
+                for entry in entries {
+                    let fullPath = (dir as NSString).appendingPathComponent(entry)
+                    var isDir: ObjCBool = false
+                    let exists = fm.fileExists(atPath: fullPath, isDirectory: &isDir)
+
+                    if exists, isDir.boolValue {
+                        scanDirectory(fullPath)
+                    } else if entry.hasSuffix(".swift"), !entry.contains("LintCommand") {
+                        fileCount += 1
+                        if let content = try? String(contentsOfFile: fullPath, encoding: .utf8) {
+                            lintSolidHeuristics(content, path: fullPath, config: config, issues: &issues)
+                        }
+                    }
+                }
+            }
+
+            scanDirectory(sourcesPath)
+
+            let passed = LintCommand.printLintReport(
+                title: "SOLID Lint (\(fileCount) files)",
+                issues: issues,
+                path: sourcesPath
+            )
+            if !passed { throw ExitCode.failure }
+        }
+
+        // swiftlint:disable cyclomatic_complexity function_body_length
+        func lintSolidHeuristics(
+            _ content: String,
+            path: String,
+            config: SwiftAnvilConfig,
+            issues: inout [LintIssue]
+        ) {
+            let filename = (path as NSString).lastPathComponent
+            let lines = content.components(separatedBy: .newlines)
+
+            // OCP: warn on non-exhaustive switch over enums in same file
+            let enumPattern = "^\\s*enum\\s+\\w+"
+            let switchPattern = "^\\s*switch\\s+"
+            let hasEnum = lines.contains(where: { line in
+                line.range(of: enumPattern, options: .regularExpression) != nil
+            })
+            if hasEnum {
+                let switchLines = lines.enumerated().filter { _, line in
+                    line.range(of: switchPattern, options: .regularExpression) != nil
+                }
+                for (lineNum, _) in switchLines {
+                    // Check if switch lacks a default case
+                    let afterSwitch = Array(lines.dropFirst(lineNum))
+                    let hasDefault = afterSwitch.prefix(30).contains { $0.contains("default:") }
+                    if !hasDefault {
+                        issues.append(LintIssue(
+                            severity: .warning,
+                            message: "Switch without default in \(filename) may violate OCP",
+                            fix: "Add a default case or extract into a visitor pattern"
+                        ))
+                    }
+                }
+            }
+
+            // LSP: flag is/as casts on protocol types
+            let lspPattern = "\\w+\\s+(is|as\\?|as!)\\s+\\w+"
+            for (lineNum, line) in lines.enumerated() {
+                if let match = line.range(of: lspPattern, options: .regularExpression) {
+                    let matchStr = String(line[match])
+                    issues.append(LintIssue(
+                        severity: .warning,
+                        message: "Protocol cast '\(matchStr)' in \(filename):\(lineNum + 1)",
+                        fix: "Prefer polymorphism over downcasting"
+                    ))
+                }
+            }
+
+            // ISP: count protocol requirements
+            let protocolPattern = "^\\s*protocol\\s+\\w+"
+            var inProtocol = false
+            var requirementCount = 0
+            var protocolName = ""
+            for line in lines {
+                if line.range(of: protocolPattern, options: .regularExpression) != nil {
+                    inProtocol = true
+                    let nameMatch = line.range(of: "protocol\\s+(\\w+)", options: .regularExpression)
+                    if let nm = nameMatch {
+                        protocolName = String(line[nm]).replacingOccurrences(of: "protocol ", with: "")
+                    }
+                    requirementCount = 0
+                }
+                if inProtocol {
+                    if line.contains("{") {
+                        // already counted
+                    }
+                    if
+                        line.trimmingCharacters(in: .whitespaces).hasPrefix("func ") ||
+                        line.trimmingCharacters(in: .whitespaces).hasPrefix("var ") ||
+                        line.trimmingCharacters(in: .whitespaces).hasPrefix("associatedtype ")
+                    {
+                        requirementCount += 1
+                    }
+                    if line.trimmingCharacters(in: .whitespaces) == "}" {
+                        if requirementCount > config.lint.solid.maxProtocolRequirements {
+                            issues.append(LintIssue(
+                                severity: .warning,
+                                message: "Protocol \(protocolName) has \(requirementCount) requirements (max: \(config.lint.solid.maxProtocolRequirements))",
+                                fix: "Split into smaller, focused protocols"
+                            ))
+                        }
+                        inProtocol = false
+                    }
+                }
+            }
+
+            // DIP: flag public funcs/init with concrete parameter types
+            let publicFuncPattern = "^\\s*public\\s+func\\s+\\w+\\s*\\("
+            let publicInitPattern = "^\\s*public\\s+init\\s*\\("
+            let concreteTypePattern = "\\(\\s*\\w+:\\s*(?!any\\s+)(?!some\\s+)[A-Z][a-zA-Z0-9_]*"
+            for (lineNum, line) in lines.enumerated() {
+                if
+                    line.range(of: publicFuncPattern, options: .regularExpression) != nil ||
+                    line.range(of: publicInitPattern, options: .regularExpression) != nil
+                {
+                    if let match = line.range(of: concreteTypePattern, options: .regularExpression) {
+                        let matchStr = String(line[match])
+                        issues.append(LintIssue(
+                            severity: .info,
+                            message: "Public API uses concrete type in \(filename):\(lineNum + 1) '\(matchStr)'",
+                            fix: "Consider depending on a protocol abstraction"
+                        ))
+                    }
+                }
             }
         }
     }
