@@ -7,12 +7,13 @@ import Foundation
 public actor PluginLoader {
     private let registry: PluginRegistry
     private let configuration: PluginConfiguration
-    
+
+    /// Creates a new plugin loader for the given registry and configuration.
     public init(registry: PluginRegistry, configuration: PluginConfiguration) {
         self.registry = registry
         self.configuration = configuration
     }
-    
+
     /// Loads a list of plugin instances into the registry.
     ///
     /// - Parameters:
@@ -25,11 +26,11 @@ public actor PluginLoader {
     ) async -> PluginLoadResult {
         var loaded: [String] = []
         var failed: [PluginLoadFailure] = []
-        
+
         for plugin in plugins {
             let type = type(of: plugin)
             let id = type.identifier
-            
+
             do {
                 try await plugin.register(with: registry, configuration: configuration)
                 loaded.append(id)
@@ -39,10 +40,10 @@ public actor PluginLoader {
                 await logger?("[PluginLoader] Failed to load \(id): \(error)")
             }
         }
-        
+
         return PluginLoadResult(loaded: loaded, failed: failed)
     }
-    
+
     /// Loads plugins from their types (useful when plugins are compile-time dependencies).
     ///
     /// Plugins must have a parameterless init. Pass instances directly if your plugins
@@ -62,10 +63,15 @@ public actor PluginLoader {
 public struct PluginLoadResult: Sendable {
     public let loaded: [String]
     public let failed: [PluginLoadFailure]
-    
-    public var allSucceeded: Bool { failed.isEmpty }
-    public var allFailed: Bool { loaded.isEmpty && !failed.isEmpty }
-    
+
+    public var allSucceeded: Bool {
+        failed.isEmpty
+    }
+
+    public var allFailed: Bool {
+        loaded.isEmpty && !failed.isEmpty
+    }
+
     public init(loaded: [String], failed: [PluginLoadFailure]) {
         self.loaded = loaded
         self.failed = failed
@@ -76,7 +82,7 @@ public struct PluginLoadResult: Sendable {
 public struct PluginLoadFailure: Sendable {
     public let identifier: String
     public let error: Error
-    
+
     public init(identifier: String, error: Error) {
         self.identifier = identifier
         self.error = error

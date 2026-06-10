@@ -6,7 +6,7 @@ import Testing
 @testable import SwiftAnvilCLI
 
 struct ProjectConfigTests {
-    @Test func defaultOptions() async throws {
+    @Test func defaultOptions() {
         let config = ProjectConfig(
             template: "ios-app",
             projectName: "TestApp",
@@ -22,14 +22,14 @@ struct ProjectConfigTests {
         #expect(config.includeUITests == true)
     }
 
-    @Test func customOptions() async throws {
+    @Test func customOptions() {
         let config = ProjectConfig(
             template: "swift-library",
             projectName: "TestLib",
             options: [
                 "useSwiftUI": .bool(false),
                 "enableAccessibility": .bool(false),
-                "targetLanguages": .stringArray(["en", "ja"]),
+                "targetLanguages": .stringArray(["en", "ja"])
             ]
         )
 
@@ -38,7 +38,7 @@ struct ProjectConfigTests {
         #expect(config.targetLanguages == ["en", "ja"])
     }
 
-    @Test func macOSAppTemplateDetection() async throws {
+    @Test func macOSAppTemplateDetection() {
         let config = ProjectConfig(
             template: "macos-app",
             projectName: "MyMacApp",
@@ -49,7 +49,7 @@ struct ProjectConfigTests {
         #expect(config.template == "macos-app")
     }
 
-    @Test func iOSAppTemplateIsNotMacOS() async throws {
+    @Test func iOSAppTemplateIsNotMacOS() {
         let config = ProjectConfig(
             template: "ios-app",
             projectName: "MyiOSApp",
@@ -61,23 +61,23 @@ struct ProjectConfigTests {
 }
 
 struct PathResolverTests {
-    @Test func homeDirectoryExists() async throws {
+    @Test func homeDirectoryExists() {
         let home = PathResolver.homeDirectory
         #expect(!home.isEmpty)
         #expect(home != "/tmp" || ProcessInfo.processInfo.environment["HOME"] == nil)
     }
 
-    @Test func resolvesRelativePath() async throws {
+    @Test func resolvesRelativePath() {
         let resolved = PathResolver.resolve("Sources/Main.swift", relativeTo: "/project")
         #expect(resolved == "/project/Sources/Main.swift")
     }
 
-    @Test func resolvesAbsolutePath() async throws {
+    @Test func resolvesAbsolutePath() {
         let resolved = PathResolver.resolve("/absolute/path")
         #expect(resolved == "/absolute/path")
     }
 
-    @Test func resolvesTildePath() async throws {
+    @Test func resolvesTildePath() {
         let resolved = PathResolver.resolve("~/.config")
         #expect(resolved.hasPrefix("/"))
         #expect(!resolved.contains("~"))

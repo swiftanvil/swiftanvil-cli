@@ -8,7 +8,7 @@ actor SuggestionEngine {
     private let knowledgeBase: KnowledgeBase
 
     init() {
-        self.knowledgeBase = KnowledgeBase()
+        knowledgeBase = KnowledgeBase()
     }
 
     /// Generate suggestions from detected issues
@@ -26,7 +26,7 @@ actor SuggestionEngine {
 
     /// Generate suggestions for a specific category
     func suggest(category: String?) async throws -> [ImmunitySuggestion] {
-        return await knowledgeBase.suggestions(forCategory: category)
+        await knowledgeBase.suggestions(forCategory: category)
     }
 }
 
@@ -35,17 +35,17 @@ actor SuggestionEngine {
 actor KnowledgeBase {
     private var patterns: [String: ImmunitySuggestion] = [:]
 
-    func suggestion(for issue: ImmunityIssue) async -> ImmunitySuggestion? {
+    func suggestion(for _: ImmunityIssue) async -> ImmunitySuggestion? {
         // Look up suggestion based on issue pattern
-        return nil
+        nil
     }
 
-    func suggestions(forCategory category: String?) async -> [ImmunitySuggestion] {
+    func suggestions(forCategory _: String?) async -> [ImmunitySuggestion] {
         // Return category-specific suggestions
-        return []
+        []
     }
 
-    func learn(from issue: ImmunityIssue, solution: String) async {
+    func learn(from _: ImmunityIssue, solution _: String) async {
         // Accumulate knowledge for future suggestions
     }
 }

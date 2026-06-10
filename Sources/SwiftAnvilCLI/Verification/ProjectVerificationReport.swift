@@ -3,8 +3,8 @@
 
 import Foundation
 
-struct ProjectVerificationIssue: Equatable, Sendable {
-    enum Severity: String, Sendable {
+struct ProjectVerificationIssue: Equatable {
+    enum Severity: String {
         case error
         case warning
     }
@@ -15,7 +15,7 @@ struct ProjectVerificationIssue: Equatable, Sendable {
     let path: String?
 }
 
-struct ProjectVerificationReport: Equatable, Sendable {
+struct ProjectVerificationReport: Equatable {
     let rootPath: String
     let issues: [ProjectVerificationIssue]
 

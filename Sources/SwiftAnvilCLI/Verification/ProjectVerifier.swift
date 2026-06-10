@@ -3,7 +3,7 @@
 
 import Foundation
 
-struct ProjectVerifier: Sendable {
+struct ProjectVerifier {
     private let fileSystem: any ProjectVerificationFileSystem
     private let policy: ProjectVerificationPolicy
 

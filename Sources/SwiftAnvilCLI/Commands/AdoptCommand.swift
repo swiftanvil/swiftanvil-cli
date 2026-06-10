@@ -1,5 +1,6 @@
 // AdoptCommand.swift
 // Retroactively applies SwiftAnvil enforcement to an existing project
+// swiftlint:disable function_body_length cyclomatic_complexity
 
 import ArgumentParser
 import Foundation
@@ -40,7 +41,7 @@ struct AdoptCommand: AsyncParsableCommand {
             print("  \(finding.icon) \(finding.message)")
         }
 
-        let applicable = findings.filter { $0.isApplicable }
+        let applicable = findings.filter(\.isApplicable)
         if applicable.isEmpty {
             print("\n✅ Project already follows all SwiftAnvil conventions.")
             return
@@ -51,10 +52,12 @@ struct AdoptCommand: AsyncParsableCommand {
             print("  [\(finding.category)] \(finding.message)")
         }
 
-        if !yes && !dryRun {
+        if !yes, !dryRun {
             print("\nApply these changes? [y/N]:", terminator: " ")
-            guard let input = readLine()?.trimmingCharacters(in: .whitespaces).lowercased(),
-                  input == "y" || input == "yes" else {
+            guard
+                let input = readLine()?.trimmingCharacters(in: .whitespaces).lowercased(),
+                input == "y" || input == "yes"
+            else {
                 print("Aborted.")
                 return
             }
@@ -128,7 +131,7 @@ struct ProjectScanner {
         // Check Package.swift for Swift 6
         let packagePath = (path as NSString).appendingPathComponent("Package.swift")
         if let content = try? String(contentsOfFile: packagePath, encoding: .utf8) {
-            if !content.contains("swiftLanguageModes") && !content.contains("swiftLanguageMode") {
+            if !content.contains("swiftLanguageModes"), !content.contains("swiftLanguageMode") {
                 findings.append(AdoptionFinding(
                     category: "platform",
                     message: "Package.swift missing Swift 6 language mode",

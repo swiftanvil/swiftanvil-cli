@@ -8,13 +8,13 @@ actor ImmunityScanner {
     private let collectors: [TelemetryCollector] = [
         BuildMetricsCollector(),
         TestMetricsCollector(),
-        CoverageCollector(),
+        CoverageCollector()
     ]
 
     private let detectors: [AnomalyDetector] = [
         BuildTimeDetector(),
         TestFlakinessDetector(),
-        CoverageRegressionDetector(),
+        CoverageRegressionDetector()
     ]
 
     /// Performs a full immunity scan
@@ -51,9 +51,9 @@ actor ImmunityScanner {
         let baseScore = 100
         let deductions = issues.reduce(0) { total, issue in
             switch issue.severity {
-            case .critical: return total + 25
-            case .warning: return total + 10
-            case .info: return total + 2
+            case .critical: total + 25
+            case .warning: total + 10
+            case .info: total + 2
             }
         }
         return max(0, baseScore - deductions)
@@ -74,9 +74,9 @@ struct ImmunityIssue {
 
         var icon: String {
             switch self {
-            case .critical: return "🔴"
-            case .warning: return "🟡"
-            case .info: return "🔵"
+            case .critical: "🔴"
+            case .warning: "🟡"
+            case .info: "🔵"
             }
         }
     }

@@ -6,9 +6,8 @@ import Testing
 @testable import SwiftAnvilCLI
 
 struct SwiftAnvilConfigLoaderTests {
-
     @Test("returns defaults when .swiftanvil.yml is missing")
-    func defaultsWhenMissing() async throws {
+    func defaultsWhenMissing() throws {
         let fm = FileManager.default
         let tempDir = fm.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         defer { try? fm.removeItem(at: tempDir) }
@@ -21,7 +20,7 @@ struct SwiftAnvilConfigLoaderTests {
     }
 
     @Test("reads custom values from .swiftanvil.yml")
-    func readsCustomConfig() async throws {
+    func readsCustomConfig() throws {
         let fm = FileManager.default
         let tempDir = fm.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         defer { try? fm.removeItem(at: tempDir) }
@@ -44,7 +43,7 @@ struct SwiftAnvilConfigLoaderTests {
     }
 
     @Test("falls back to defaults on malformed YAML")
-    func fallsBackOnMalformedYAML() async throws {
+    func fallsBackOnMalformedYAML() throws {
         let fm = FileManager.default
         let tempDir = fm.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         defer { try? fm.removeItem(at: tempDir) }
@@ -60,9 +59,8 @@ struct SwiftAnvilConfigLoaderTests {
 }
 
 struct SourceStructureLinterTests {
-
     @Test("passes for small file with few types")
-    func passesSmallFile() async throws {
+    func passesSmallFile() {
         let content = """
         import Foundation
 
@@ -78,9 +76,9 @@ struct SourceStructureLinterTests {
     }
 
     @Test("fails when file exceeds max lines")
-    func failsOnTooManyLines() async throws {
+    func failsOnTooManyLines() {
         var lines: [String] = []
-        for i in 0..<360 {
+        for i in 0 ..< 360 {
             lines.append("// line \(i)")
         }
         let content = lines.joined(separator: "\n")
@@ -92,7 +90,7 @@ struct SourceStructureLinterTests {
     }
 
     @Test("fails when file has too many top-level types")
-    func failsOnTooManyTypes() async throws {
+    func failsOnTooManyTypes() {
         let content = """
         struct One {}
         struct Two {}
@@ -108,7 +106,7 @@ struct SourceStructureLinterTests {
     }
 
     @Test("warns when file mixes many type kinds")
-    func warnsOnMixedKinds() async throws {
+    func warnsOnMixedKinds() {
         let content = """
         struct MyStruct {}
         enum MyEnum {}
@@ -123,7 +121,7 @@ struct SourceStructureLinterTests {
     }
 
     @Test("respects custom config thresholds")
-    func respectsCustomThresholds() async throws {
+    func respectsCustomThresholds() {
         let content = """
         struct A {}
         struct B {}

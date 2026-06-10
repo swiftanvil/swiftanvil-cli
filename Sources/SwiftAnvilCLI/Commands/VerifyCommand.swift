@@ -78,7 +78,7 @@ struct VerifyCommand: AsyncParsableCommand {
 
 // MARK: - Example Project Verifier
 
-struct ExampleProjectVerifier: Sendable {
+struct ExampleProjectVerifier {
     func verify(path rootPath: String) -> ProjectVerificationReport {
         let fm = FileManager.default
         var issues: [ProjectVerificationIssue] = []
@@ -87,7 +87,7 @@ struct ExampleProjectVerifier: Sendable {
         let requiredFiles = [
             "Package.swift",
             "README.md",
-            ".gitignore",
+            ".gitignore"
         ]
 
         for file in requiredFiles {
@@ -130,7 +130,7 @@ struct ExampleProjectVerifier: Sendable {
                         path: "Package.swift"
                     ))
                 }
-                if !content.contains("swiftLanguageModes") && !content.contains("swiftLanguageMode") {
+                if !content.contains("swiftLanguageModes"), !content.contains("swiftLanguageMode") {
                     issues.append(ProjectVerificationIssue(
                         severity: .warning,
                         check: "package-swift-6",

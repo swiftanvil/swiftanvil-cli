@@ -11,32 +11,26 @@ protocol AnomalyDetector: Sendable {
 // MARK: - Concrete Detectors
 
 struct BuildTimeDetector: AnomalyDetector {
-    func detect(deep: Bool) async throws -> [ImmunityIssue] {
-        let issues: [ImmunityIssue] = []
+    func detect(deep _: Bool) async throws -> [ImmunityIssue] {
+        []
 
         // Detect slow builds
         // Compare against baseline from knowledge base
-
-        return issues
     }
 }
 
 struct TestFlakinessDetector: AnomalyDetector {
-    func detect(deep: Bool) async throws -> [ImmunityIssue] {
-        let issues: [ImmunityIssue] = []
+    func detect(deep _: Bool) async throws -> [ImmunityIssue] {
+        []
 
         // Detect flaky tests by analyzing pass/fail patterns
-
-        return issues
     }
 }
 
 struct CoverageRegressionDetector: AnomalyDetector {
-    func detect(deep: Bool) async throws -> [ImmunityIssue] {
-        let issues: [ImmunityIssue] = []
+    func detect(deep _: Bool) async throws -> [ImmunityIssue] {
+        []
 
         // Detect coverage drops compared to baseline
-
-        return issues
     }
 }

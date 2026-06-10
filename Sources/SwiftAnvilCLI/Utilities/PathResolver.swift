@@ -8,12 +8,12 @@ enum PathResolver {
     /// Returns the user's home directory in a cross-platform way
     static var homeDirectory: String {
         #if os(macOS) || os(iOS)
-        return NSHomeDirectory()
+            return NSHomeDirectory()
         #else
-        if let home = ProcessInfo.processInfo.environment["HOME"] {
-            return home
-        }
-        return "/tmp"
+            if let home = ProcessInfo.processInfo.environment["HOME"] {
+                return home
+            }
+            return "/tmp"
         #endif
     }
 

@@ -8,11 +8,12 @@ public actor PluginRegistry {
     private var generatorsByID: [String: any PluginGenerator] = [:]
     private var filtersByID: [String: any PluginTemplateFilter] = [:]
     private var hooksByType: [LifecycleHook: [HookEntry]] = [:]
-    
-    public init() {}
-    
+
+    /// Creates an empty plugin registry.
+    public init() { }
+
     // MARK: - Registration
-    
+
     /// Registers a plugin command.
     ///
     /// - Throws: `PluginRegistryError.duplicateCommand` if a command with the same
@@ -27,7 +28,7 @@ public actor PluginRegistry {
         }
         commandsByID[id] = command
     }
-    
+
     /// Registers a plugin generator.
     ///
     /// - Throws: `PluginRegistryError.duplicateGenerator` if a generator with the same
@@ -42,7 +43,7 @@ public actor PluginRegistry {
         }
         generatorsByID[id] = generator
     }
-    
+
     /// Registers a template filter.
     ///
     /// - Throws: `PluginRegistryError.duplicateFilter` if a filter with the same
@@ -57,7 +58,7 @@ public actor PluginRegistry {
         }
         filtersByID[id] = filter
     }
-    
+
     /// Registers a lifecycle hook.
     ///
     /// - Parameters:
@@ -78,46 +79,46 @@ public actor PluginRegistry {
         )
         hooksByType[hook, default: []].append(entry)
     }
-    
+
     // MARK: - Queries
-    
+
     /// Returns all registered commands.
     public func commands() -> [any PluginCommand] {
         Array(commandsByID.values)
     }
-    
+
     /// Returns all registered generators.
     public func generators() -> [any PluginGenerator] {
         Array(generatorsByID.values)
     }
-    
+
     /// Returns all registered template filters.
     public func filters() -> [any PluginTemplateFilter] {
         Array(filtersByID.values)
     }
-    
+
     /// Returns hooks for the given lifecycle type, sorted by priority (highest first).
     public func hooks(for hook: LifecycleHook) -> [HookEntry] {
         hooksByType[hook, default: []].sorted { $0.priority > $1.priority }
     }
-    
+
     /// Returns a command by its namespaced ID.
     public func command(id: String) -> (any PluginCommand)? {
         commandsByID[id]
     }
-    
+
     /// Returns a generator by its namespaced ID.
     public func generator(id: String) -> (any PluginGenerator)? {
         generatorsByID[id]
     }
-    
+
     /// Returns a filter by its namespaced ID.
     public func filter(id: String) -> (any PluginTemplateFilter)? {
         filtersByID[id]
     }
-    
+
     // MARK: - Execution
-    
+
     /// Executes all hooks of the given type with the provided context.
     /// Hooks run sequentially in priority order (highest first).
     /// If a hook throws, the error is logged and remaining hooks continue.

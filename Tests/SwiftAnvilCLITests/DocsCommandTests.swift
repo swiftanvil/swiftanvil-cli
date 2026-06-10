@@ -10,7 +10,6 @@ import Testing
 
 @Suite("DocCGenerator")
 struct DocCGeneratorTests {
-
     @Test("result is codable and equatable")
     func resultIsCodableAndEquatable() throws {
         let result = DocCGenerator.Result(
@@ -30,12 +29,22 @@ struct DocCGeneratorTests {
 
     @Test("result equality respects all fields")
     func resultEquality() {
-        let a = DocCGenerator.Result(success: true, catalogName: "A", pageCount: 1, outputPath: "/a", errorMessage: nil)
-        let b = DocCGenerator.Result(success: true, catalogName: "A", pageCount: 1, outputPath: "/a", errorMessage: nil)
-        let c = DocCGenerator.Result(success: false, catalogName: "A", pageCount: 1, outputPath: "/a", errorMessage: nil)
+        let firstResult = DocCGenerator.Result(
+            success: true, catalogName: "A", pageCount: 1, outputPath: "/a", errorMessage: nil
+        )
+        let matchingResult = DocCGenerator.Result(
+            success: true, catalogName: "A", pageCount: 1, outputPath: "/a", errorMessage: nil
+        )
+        let differentResult = DocCGenerator.Result(
+            success: false,
+            catalogName: "A",
+            pageCount: 1,
+            outputPath: "/a",
+            errorMessage: nil
+        )
 
-        #expect(a == b)
-        #expect(a != c)
+        #expect(firstResult == matchingResult)
+        #expect(firstResult != differentResult)
     }
 
     @Test("generate returns success when docc catalog exists")
@@ -77,7 +86,11 @@ struct DocCGeneratorTests {
 
         let packageDir = tempDir.appendingPathComponent("NoDocsPackage", isDirectory: true)
         try fm.createDirectory(at: packageDir, withIntermediateDirectories: true)
-        try "// no docs".write(to: packageDir.appendingPathComponent("Package.swift"), atomically: true, encoding: .utf8)
+        try "// no docs".write(
+            to: packageDir.appendingPathComponent("Package.swift"),
+            atomically: true,
+            encoding: .utf8
+        )
 
         let outputDir = tempDir.appendingPathComponent("docs", isDirectory: true)
         try fm.createDirectory(at: outputDir, withIntermediateDirectories: true)
@@ -152,7 +165,6 @@ struct DocCGeneratorTests {
 
 @Suite("DocCPreviewer")
 struct DocCPreviewerTests {
-
     @Test("serve fails when docs directory does not exist")
     func serveFailsWhenDocsMissing() async throws {
         let previewer = DocCPreviewer()
@@ -192,7 +204,6 @@ struct DocCPreviewerTests {
 
 @Suite("DocsCommand.Generate")
 struct DocsGenerateCommandTests {
-
     @Test("generate command produces result with correct defaults")
     func generateCommandDefaults() async throws {
         let fm = FileManager.default

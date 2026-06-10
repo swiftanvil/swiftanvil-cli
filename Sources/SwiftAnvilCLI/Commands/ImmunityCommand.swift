@@ -55,7 +55,7 @@ struct ImmunityCommand: AsyncParsableCommand {
         private func generateReport(result: ImmunityScanResult, format: String) -> String {
             switch format {
             case "json":
-                return """
+                """
                 {
                   "healthScore": \(result.healthScore),
                   "issues": \(result.issues.count),
@@ -63,7 +63,7 @@ struct ImmunityCommand: AsyncParsableCommand {
                 }
                 """
             default:
-                return """
+                """
                 # Immunity Health Report
 
                 | Metric | Value |
@@ -73,7 +73,8 @@ struct ImmunityCommand: AsyncParsableCommand {
                 | Suggestions | \(result.suggestions.count) |
 
                 ## Issues
-                \(result.issues.map { "- [\($0.severity.icon)] [\($0.category)] \($0.description)" }.joined(separator: "\n"))
+                \(result.issues.map { "- [\($0.severity.icon)] [\($0.category)] \($0.description)" }
+                    .joined(separator: "\n"))
 
                 ## Suggestions
                 \(result.suggestions.map { "- **\($0.title)**: \($0.description)" }.joined(separator: "\n"))

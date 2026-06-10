@@ -6,16 +6,16 @@ import Foundation
 public protocol SwiftAnvilPlugin: Sendable {
     /// Unique plugin identifier (reverse-DNS style).
     static var identifier: String { get }
-    
+
     /// Human-readable name.
     static var displayName: String { get }
-    
+
     /// Plugin version.
     static var version: String { get }
-    
+
     /// Called during CLI startup to register commands, generators, filters, and hooks.
     func register(with registry: PluginRegistry, configuration: PluginConfiguration) async throws
-    
+
     /// Creates a new instance of the plugin.
     init()
 }
@@ -25,7 +25,7 @@ public protocol SwiftAnvilPlugin: Sendable {
 /// Configuration passed to plugins during registration.
 public struct PluginConfiguration: Sendable {
     public let workingDirectory: URL
-    
+
     public init(workingDirectory: URL) {
         self.workingDirectory = workingDirectory
     }
@@ -79,7 +79,7 @@ public struct HookContext: Sendable {
     public let projectName: String
     public let projectPath: URL
     public let generatorName: String
-    
+
     public init(projectName: String, projectPath: URL, generatorName: String) {
         self.projectName = projectName
         self.projectPath = projectPath
@@ -92,7 +92,7 @@ public enum HookPriority: Int, Sendable, Comparable {
     case low = 0
     case normal = 1
     case high = 2
-    
+
     public static func < (lhs: HookPriority, rhs: HookPriority) -> Bool {
         lhs.rawValue < rhs.rawValue
     }
@@ -103,7 +103,7 @@ public struct HookEntry: Sendable {
     public let pluginIdentifier: String
     public let priority: HookPriority
     public let action: @Sendable (HookContext) async throws -> Void
-    
+
     public init(
         pluginIdentifier: String,
         priority: HookPriority,

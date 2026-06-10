@@ -6,7 +6,7 @@ import Testing
 @testable import SwiftAnvilCLI
 
 struct ProjectVerifierTests {
-    @Test func validGeneratedProjectContractPasses() async throws {
+    @Test func validGeneratedProjectContractPasses() {
         let fileSystem = InMemoryProjectVerificationFileSystem.validProject()
         let report = ProjectVerifier(fileSystem: fileSystem).verify(path: "/GeneratedApp")
 
@@ -14,7 +14,7 @@ struct ProjectVerifierTests {
         #expect(report.issues.isEmpty)
     }
 
-    @Test func missingRequiredStructureFails() async throws {
+    @Test func missingRequiredStructureFails() {
         let fileSystem = InMemoryProjectVerificationFileSystem(files: [:], directories: [])
         let report = ProjectVerifier(fileSystem: fileSystem).verify(path: "/GeneratedApp")
 
@@ -24,7 +24,7 @@ struct ProjectVerifierTests {
         #expect(report.errors.contains { $0.check == "required-directory" && $0.path == "Tests" })
     }
 
-    @Test func staleCheckoutVersionFails() async throws {
+    @Test func staleCheckoutVersionFails() {
         var fileSystem = InMemoryProjectVerificationFileSystem.validProject()
         fileSystem.files["/GeneratedApp/.github/workflows/ci.yml"] = """
         name: CI
@@ -42,7 +42,7 @@ struct ProjectVerifierTests {
         #expect(report.errors.contains { $0.check == "ci-checkout-version" })
     }
 
-    @Test func missingTestTargetFails() async throws {
+    @Test func missingTestTargetFails() {
         var fileSystem = InMemoryProjectVerificationFileSystem.validProject()
         fileSystem.files["/GeneratedApp/Package.swift"] = """
         // swift-tools-version: 6.3
@@ -62,7 +62,7 @@ struct ProjectVerifierTests {
         #expect(report.errors.contains { $0.check == "package-test-target" })
     }
 
-    @Test func missingRegistrySourcesFails() async throws {
+    @Test func missingRegistrySourcesFails() {
         var fileSystem = InMemoryProjectVerificationFileSystem.validProject()
         fileSystem.files["/GeneratedApp/Documentation/Registry/index.yml"] = """
         documents:
@@ -126,11 +126,11 @@ private struct InMemoryProjectVerificationFileSystem: ProjectVerificationFileSys
                     path: README.md
                     sources: []
                 """,
-                "/GeneratedApp/AGENTS.md": "# GeneratedApp Agent Guidelines\n",
+                "/GeneratedApp/AGENTS.md": "# GeneratedApp Agent Guidelines\n"
             ],
             directories: [
                 "/GeneratedApp/Sources",
-                "/GeneratedApp/Tests",
+                "/GeneratedApp/Tests"
             ]
         )
     }

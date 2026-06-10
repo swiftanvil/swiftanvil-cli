@@ -2,8 +2,8 @@
 // Host-agnostic template rendering engine
 
 import Foundation
-import Stencil
 import PathKit
+import Stencil
 
 /// Renders templates with project configuration context
 actor TemplateEngine {
@@ -16,14 +16,14 @@ actor TemplateEngine {
         let possiblePaths = [
             currentPath + "/Templates",
             currentPath + "/../Templates",
-            currentPath + "/../../Templates",
+            currentPath + "/../../Templates"
         ]
 
         let templatePaths: [Path] = possiblePaths
             .filter { fm.fileExists(atPath: $0) }
             .map { Path($0) }
 
-        self.environment = Environment(loader: FileSystemLoader(paths: templatePaths))
+        environment = Environment(loader: FileSystemLoader(paths: templatePaths))
     }
 
     /// Renders a single template file
@@ -33,7 +33,7 @@ actor TemplateEngine {
     }
 
     /// Renders a complete template set for a project type
-    func renderTemplateSet(template: String, config: ProjectConfig) async throws -> [(String, String)] {
+    func renderTemplateSet(template: String, config _: ProjectConfig) async throws -> [(String, String)] {
         let fm = FileManager.default
         let manifestPath = "\(fm.currentDirectoryPath)/Templates/\(template)/manifest.yml"
 

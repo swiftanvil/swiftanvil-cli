@@ -3,7 +3,7 @@
 
 import Foundation
 
-struct ProjectVerificationPolicy: Sendable {
+struct ProjectVerificationPolicy {
     let requiredFiles: [String]
     let requiredDirectories: [String]
     let packageManifestPath: String
@@ -17,11 +17,11 @@ struct ProjectVerificationPolicy: Sendable {
             "Package.swift",
             ".github/workflows/ci.yml",
             "Documentation/Registry/index.yml",
-            "AGENTS.md",
+            "AGENTS.md"
         ],
         requiredDirectories: [
             "Sources",
-            "Tests",
+            "Tests"
         ],
         packageManifestPath: "Package.swift",
         ciWorkflowPath: ".github/workflows/ci.yml",

@@ -5,17 +5,17 @@ import Foundation
 import Yams
 
 /// Represents the complete `.swiftanvil.yml` configuration.
-struct SwiftAnvilConfig: Codable, Sendable {
+struct SwiftAnvilConfig: Codable {
     var lint: LintConfig = .init()
 }
 
 /// Lint-specific configuration.
-struct LintConfig: Codable, Sendable {
+struct LintConfig: Codable {
     var structure: LintStructureConfig = .init()
 }
 
 /// Structure lint thresholds.
-struct LintStructureConfig: Codable, Sendable {
+struct LintStructureConfig: Codable {
     var maxLines: Int = 350
     var maxTopLevelTypes: Int = 4
     var mixedTypeKinds: Int = 3
@@ -33,9 +33,10 @@ enum SwiftAnvilConfigLoader {
     /// Returns defaults if the file is missing or unreadable.
     static func load(from projectPath: String) -> SwiftAnvilConfig {
         let configPath = (projectPath as NSString).appendingPathComponent(".swiftanvil.yml")
-        guard FileManager.default.fileExists(atPath: configPath),
-              let data = try? Data(contentsOf: URL(fileURLWithPath: configPath)),
-              let yamlString = String(data: data, encoding: .utf8)
+        guard
+            FileManager.default.fileExists(atPath: configPath),
+            let data = try? Data(contentsOf: URL(fileURLWithPath: configPath)),
+            let yamlString = String(data: data, encoding: .utf8)
         else {
             return SwiftAnvilConfig()
         }

@@ -1,5 +1,6 @@
 // LintCommand.swift
 // Progressive project linting for SwiftAnvil conventions
+// swiftlint:disable file_length type_body_length
 
 import ArgumentParser
 import Foundation
@@ -12,7 +13,7 @@ struct LintCommand: AsyncParsableCommand {
             PackageLint.self,
             SourceLint.self,
             TestLint.self,
-            DependencyLint.self,
+            DependencyLint.self
         ]
     )
 
@@ -63,7 +64,7 @@ struct LintCommand: AsyncParsableCommand {
             }
 
             // Check Swift 6 language mode
-            if !content.contains("swiftLanguageModes") && !content.contains("swiftLanguageMode") {
+            if !content.contains("swiftLanguageModes"), !content.contains("swiftLanguageMode") {
                 issues.append(LintIssue(
                     severity: .error,
                     message: "Missing Swift 6 language mode",
@@ -91,6 +92,7 @@ struct LintCommand: AsyncParsableCommand {
                 ))
             }
 
+            // swiftlint:disable platform_policy_old_version
             // Check for old platform versions
             let oldVersions = [".v13", ".v14", ".v16", ".v17"]
             for old in oldVersions {
@@ -102,6 +104,7 @@ struct LintCommand: AsyncParsableCommand {
                     ))
                 }
             }
+            // swiftlint:enable platform_policy_old_version
 
             let passed = LintCommand.printLintReport(title: "Package.swift Lint", issues: issues, path: packagePath)
             if !passed { throw ExitCode.failure }
@@ -144,18 +147,23 @@ struct LintCommand: AsyncParsableCommand {
                     var isDir: ObjCBool = false
                     let exists = fm.fileExists(atPath: fullPath, isDirectory: &isDir)
 
-                    if exists && isDir.boolValue {
+                    if exists, isDir.boolValue {
                         if entry.hasSuffix(".docc") {
                             doccCount += 1
                         } else {
                             scanDirectory(fullPath)
                         }
-                    } else if entry.hasSuffix(".swift") && !entry.contains("LintCommand") {
+                    } else if entry.hasSuffix(".swift"), !entry.contains("LintCommand") {
                         fileCount += 1
                         if let content = try? String(contentsOfFile: fullPath, encoding: .utf8) {
                             lintSourceFile(content, path: fullPath, issues: &issues)
                             if structure {
-                                lintSourceStructure(content, path: fullPath, config: config.lint.structure, issues: &issues)
+                                lintSourceStructure(
+                                    content,
+                                    path: fullPath,
+                                    config: config.lint.structure,
+                                    issues: &issues
+                                )
                             }
                         }
                     }
@@ -172,13 +180,18 @@ struct LintCommand: AsyncParsableCommand {
                 ))
             }
 
-            let passed = LintCommand.printLintReport(title: "Source Lint (\(fileCount) files, \(doccCount) DocC catalogs)", issues: issues, path: sourcesPath)
+            let passed = LintCommand.printLintReport(
+                title: "Source Lint (\(fileCount) files, \(doccCount) DocC catalogs)",
+                issues: issues,
+                path: sourcesPath
+            )
             if !passed { throw ExitCode.failure }
         }
 
         private func lintSourceFile(_ content: String, path: String, issues: inout [LintIssue]) {
             let filename = (path as NSString).lastPathComponent
 
+            // swiftlint:disable available_check
             // Check for #available / @available
             if content.contains("#available") || content.contains("@available") {
                 issues.append(LintIssue(
@@ -187,14 +200,17 @@ struct LintCommand: AsyncParsableCommand {
                     fix: "Remove availability checks — all APIs must work on minimum platform"
                 ))
             }
+            // swiftlint:enable available_check
 
+            // swiftlint:disable notification_center_add_observer url_session_data_task dispatch_queue_main_async
             // Check for deprecated API patterns
             let deprecatedPatterns = [
                 ("NotificationCenter.default.addObserver", "Use async notifications sequence"),
                 ("URLSession.shared.dataTask", "Use async URLSession methods"),
                 ("DispatchQueue.main.async", "Use MainActor instead"),
-                ("XCTAssert", "Use Swift Testing #expect"),
+                ("XCTAssert", "Use Swift Testing #expect")
             ]
+            // swiftlint:enable notification_center_add_observer url_session_data_task dispatch_queue_main_async
             for (pattern, suggestion) in deprecatedPatterns {
                 if content.contains(pattern) {
                     issues.append(LintIssue(
@@ -208,15 +224,15 @@ struct LintCommand: AsyncParsableCommand {
             // Check for public API without DocC
             let publicDecls = content.components(separatedBy: .newlines).enumerated().filter { _, line in
                 line.trimmingCharacters(in: .whitespaces).hasPrefix("public ") &&
-                !line.contains("//") &&
-                !line.contains("/*")
+                    !line.contains("//") &&
+                    !line.contains("/*")
             }
-            for (lineNum, line) in publicDecls {
+            for (lineNum, _) in publicDecls {
                 // Simple heuristic: check if previous non-empty line starts with ///
                 let lines = content.components(separatedBy: .newlines)
                 let prevIndex = max(0, lineNum - 1)
                 let prevLine = lines[prevIndex].trimmingCharacters(in: .whitespaces)
-                if !prevLine.hasPrefix("///") && !prevLine.hasPrefix("// MARK:") {
+                if !prevLine.hasPrefix("///"), !prevLine.hasPrefix("// MARK:") {
                     issues.append(LintIssue(
                         severity: .info,
                         message: "Public declaration without DocC comment in \(filename):\(lineNum + 1)",
@@ -226,7 +242,12 @@ struct LintCommand: AsyncParsableCommand {
             }
         }
 
-        func lintSourceStructure(_ content: String, path: String, config: LintStructureConfig, issues: inout [LintIssue]) {
+        func lintSourceStructure(
+            _ content: String,
+            path: String,
+            config: LintStructureConfig,
+            issues: inout [LintIssue]
+        ) {
             let filename = (path as NSString).lastPathComponent
             let lines = content.components(separatedBy: .newlines)
 
@@ -307,7 +328,7 @@ struct LintCommand: AsyncParsableCommand {
                     var isDir: ObjCBool = false
                     let exists = fm.fileExists(atPath: fullPath, isDirectory: &isDir)
 
-                    if exists && isDir.boolValue {
+                    if exists, isDir.boolValue {
                         scanDirectory(fullPath)
                     } else if entry.hasSuffix(".swift") {
                         testFileCount += 1
@@ -317,9 +338,11 @@ struct LintCommand: AsyncParsableCommand {
                             testCount += atTests + funcTests
 
                             // Check for edge case tests
-                            if !content.lowercased().contains("error") &&
-                               !content.lowercased().contains("invalid") &&
-                               !content.lowercased().contains("empty") {
+                            if
+                                !content.lowercased().contains("error"),
+                                !content.lowercased().contains("invalid"),
+                                !content.lowercased().contains("empty")
+                            {
                                 issues.append(LintIssue(
                                     severity: .info,
                                     message: "No obvious edge case tests in \(entry)",
@@ -347,7 +370,11 @@ struct LintCommand: AsyncParsableCommand {
                 ))
             }
 
-            let passed = LintCommand.printLintReport(title: "Test Lint (\(testFileCount) files, \(testCount) tests)", issues: issues, path: testsPath)
+            let passed = LintCommand.printLintReport(
+                title: "Test Lint (\(testFileCount) files, \(testCount) tests)",
+                issues: issues,
+                path: testsPath
+            )
             if !passed { throw ExitCode.failure }
         }
     }
@@ -391,7 +418,7 @@ struct LintCommand: AsyncParsableCommand {
             }
 
             // Check for revision-based without version
-            if content.contains("\"revision\"") && !content.contains("\"version\"") {
+            if content.contains("\"revision\""), !content.contains("\"version\"") {
                 issues.append(LintIssue(
                     severity: .info,
                     message: "Revision-pinned dependencies without versions",
@@ -408,15 +435,15 @@ struct LintCommand: AsyncParsableCommand {
 
     struct LintIssue {
         enum Severity: String {
-            case error = "error"
-            case warning = "warning"
-            case info = "info"
+            case error
+            case warning
+            case info
 
             var icon: String {
                 switch self {
-                case .error: return "❌"
-                case .warning: return "⚠️"
-                case .info: return "ℹ️"
+                case .error: "❌"
+                case .warning: "⚠️"
+                case .info: "ℹ️"
                 }
             }
         }

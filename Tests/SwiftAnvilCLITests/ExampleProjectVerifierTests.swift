@@ -4,7 +4,6 @@ import Testing
 
 @Suite("ExampleProjectVerifier")
 struct ExampleProjectVerifierTests {
-
     @Test("passes valid example project")
     func passesValidExample() throws {
         let fm = FileManager.default
@@ -12,9 +11,20 @@ struct ExampleProjectVerifierTests {
         defer { try? fm.removeItem(at: tempDir) }
 
         try fm.createDirectory(at: tempDir.appendingPathComponent("Sources/MyLib"), withIntermediateDirectories: true)
-        try fm.createDirectory(at: tempDir.appendingPathComponent("Tests/MyLibTests"), withIntermediateDirectories: true)
-        try "// swift-tools-version: 6.0\nimport PackageDescription".write(to: tempDir.appendingPathComponent("Package.swift"), atomically: true, encoding: .utf8)
-        try "# MyLib\n\n## Build\n\n```bash\nswift build\n```\n\n## Test\n\n```bash\nswift test\n```".write(to: tempDir.appendingPathComponent("README.md"), atomically: true, encoding: .utf8)
+        try fm.createDirectory(
+            at: tempDir.appendingPathComponent("Tests/MyLibTests"),
+            withIntermediateDirectories: true
+        )
+        try "// swift-tools-version: 6.0\nimport PackageDescription".write(
+            to: tempDir.appendingPathComponent("Package.swift"),
+            atomically: true,
+            encoding: .utf8
+        )
+        try "# MyLib\n\n## Build\n\n```bash\nswift build\n```\n\n## Test\n\n```bash\nswift test\n```".write(
+            to: tempDir.appendingPathComponent("README.md"),
+            atomically: true,
+            encoding: .utf8
+        )
         try "*.xcodeproj\n".write(to: tempDir.appendingPathComponent(".gitignore"), atomically: true, encoding: .utf8)
 
         let verifier = ExampleProjectVerifier()
@@ -49,7 +59,11 @@ struct ExampleProjectVerifierTests {
         defer { try? fm.removeItem(at: tempDir) }
 
         try fm.createDirectory(at: tempDir.appendingPathComponent("Tests"), withIntermediateDirectories: true)
-        try "// swift-tools-version: 6.0".write(to: tempDir.appendingPathComponent("Package.swift"), atomically: true, encoding: .utf8)
+        try "// swift-tools-version: 6.0".write(
+            to: tempDir.appendingPathComponent("Package.swift"),
+            atomically: true,
+            encoding: .utf8
+        )
         try "# README".write(to: tempDir.appendingPathComponent("README.md"), atomically: true, encoding: .utf8)
         try "".write(to: tempDir.appendingPathComponent(".gitignore"), atomically: true, encoding: .utf8)
 
@@ -67,9 +81,20 @@ struct ExampleProjectVerifierTests {
         defer { try? fm.removeItem(at: tempDir) }
 
         try fm.createDirectory(at: tempDir.appendingPathComponent("Sources/MyLib"), withIntermediateDirectories: true)
-        try fm.createDirectory(at: tempDir.appendingPathComponent("Tests/MyLibTests"), withIntermediateDirectories: true)
-        try "// swift-tools-version: 5.9\nimport PackageDescription".write(to: tempDir.appendingPathComponent("Package.swift"), atomically: true, encoding: .utf8)
-        try "# README\n\n## Build\n\n## Test".write(to: tempDir.appendingPathComponent("README.md"), atomically: true, encoding: .utf8)
+        try fm.createDirectory(
+            at: tempDir.appendingPathComponent("Tests/MyLibTests"),
+            withIntermediateDirectories: true
+        )
+        try "// swift-tools-version: 5.9\nimport PackageDescription".write(
+            to: tempDir.appendingPathComponent("Package.swift"),
+            atomically: true,
+            encoding: .utf8
+        )
+        try "# README\n\n## Build\n\n## Test".write(
+            to: tempDir.appendingPathComponent("README.md"),
+            atomically: true,
+            encoding: .utf8
+        )
         try "".write(to: tempDir.appendingPathComponent(".gitignore"), atomically: true, encoding: .utf8)
 
         let verifier = ExampleProjectVerifier()
@@ -85,8 +110,26 @@ struct ExampleProjectVerifierTests {
         defer { try? fm.removeItem(at: tempDir) }
 
         try fm.createDirectory(at: tempDir.appendingPathComponent("Sources/MyLib"), withIntermediateDirectories: true)
-        try fm.createDirectory(at: tempDir.appendingPathComponent("Tests/MyLibTests"), withIntermediateDirectories: true)
-        try "// swift-tools-version: 6.0\nimport PackageDescription\nlet package = Package(name: \"MyLib\", targets: [.target(name: \"MyLib\"), .testTarget(name: \"MyLibTests\", dependencies: [\"MyLib\"])])".write(to: tempDir.appendingPathComponent("Package.swift"), atomically: true, encoding: .utf8)
+        try fm.createDirectory(
+            at: tempDir.appendingPathComponent("Tests/MyLibTests"),
+            withIntermediateDirectories: true
+        )
+        let packageContent = """
+        // swift-tools-version: 6.0
+        import PackageDescription
+        let package = Package(
+            name: "MyLib",
+            targets: [
+                .target(name: "MyLib"),
+                .testTarget(name: "MyLibTests", dependencies: ["MyLib"])
+            ]
+        )
+        """
+        try packageContent.write(
+            to: tempDir.appendingPathComponent("Package.swift"),
+            atomically: true,
+            encoding: .utf8
+        )
         try "# README".write(to: tempDir.appendingPathComponent("README.md"), atomically: true, encoding: .utf8)
         try "".write(to: tempDir.appendingPathComponent(".gitignore"), atomically: true, encoding: .utf8)
 

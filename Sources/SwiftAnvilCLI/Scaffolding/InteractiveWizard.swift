@@ -24,11 +24,10 @@ struct InteractiveWizard {
         let enableAccessibility = try await confirm("Enable accessibility enforcement?", default: true)
         let enableLocalization = try await confirm("Enable localization?", default: true)
 
-        let targetLanguages: [String]
-        if enableLocalization {
-            targetLanguages = try await selectLanguages()
+        let targetLanguages: [String] = if enableLocalization {
+            try await selectLanguages()
         } else {
-            targetLanguages = ["en"]
+            ["en"]
         }
 
         // Testing
@@ -58,7 +57,7 @@ struct InteractiveWizard {
             "includePerformanceTests": .bool(includePerformanceTests),
             "ciProvider": .string(ciProvider),
             "useSelfHostedRunners": .bool(useSelfHosted),
-            "enableImmunity": .bool(enableImmunity),
+            "enableImmunity": .bool(enableImmunity)
         ]
 
         return ProjectConfig(template: template, projectName: projectName, options: options)
@@ -77,7 +76,7 @@ struct InteractiveWizard {
             ("swift-library", "Swift Library"),
             ("swift-tool", "Command Line Tool"),
             ("swift-server", "Server-side Swift"),
-            ("multiplatform-app", "Multiplatform App"),
+            ("multiplatform-app", "Multiplatform App")
         ]
 
         print("Available templates:")
@@ -103,7 +102,7 @@ struct InteractiveWizard {
             ("pt", "Portuguese"),
             ("ru", "Russian"),
             ("ar", "Arabic"),
-            ("hi", "Hindi"),
+            ("hi", "Hindi")
         ]
 
         print("\nAvailable languages:")

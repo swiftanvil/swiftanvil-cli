@@ -22,7 +22,7 @@ actor ShellRunner {
         process.standardOutput = stdoutPipe
         process.standardError = stderrPipe
 
-        if let directory = directory {
+        if let directory {
             process.currentDirectoryURL = URL(fileURLWithPath: directory)
         }
 

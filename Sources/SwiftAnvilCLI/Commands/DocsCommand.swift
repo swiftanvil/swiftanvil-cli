@@ -1,5 +1,6 @@
 // DocsCommand.swift
 // Documentation commands: registry compose/validate + DocC generate/preview
+// swiftlint:disable file_length
 
 import ArgumentParser
 import Foundation
@@ -171,7 +172,7 @@ extension DocsCommand {
 
 /// Generates static HTML documentation using DocC.
 actor DocCGenerator {
-    struct Result: Codable, Equatable, Sendable {
+    struct Result: Codable, Equatable {
         var success: Bool
         var catalogName: String?
         var pageCount: Int
@@ -269,7 +270,7 @@ actor DocCGenerator {
         }
 
         // Fallback: try docc convert directly if catalog exists
-        if let catalog = catalog {
+        if let catalog {
             let doccPath = try await findDocCExecutable()
             let doccBasePathFlag = hostingBasePath.map { " --hosting-base-path \($0)" } ?? ""
             let doccCommand = "\(doccPath) convert \(catalog.path) --output-path \(outputPath.path)\(doccBasePathFlag)"
@@ -383,7 +384,7 @@ actor DocCPreviewer {
         let fm = FileManager.default
         let possiblePaths = [
             docsURL.appendingPathComponent("index.html"),
-            docsURL.appendingPathComponent("documentation/index.html"),
+            docsURL.appendingPathComponent("documentation/index.html")
         ]
         for path in possiblePaths {
             if fm.fileExists(atPath: path.path) {
@@ -411,8 +412,10 @@ actor DocCPreviewer {
         }
 
         for case let itemURL as URL in enumerator {
-            guard let values = try? itemURL.resourceValues(forKeys: [.contentModificationDateKey]),
-                  let modDate = values.contentModificationDate else {
+            guard
+                let values = try? itemURL.resourceValues(forKeys: [.contentModificationDateKey]),
+                let modDate = values.contentModificationDate
+            else {
                 continue
             }
             if modDate > latest {

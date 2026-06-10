@@ -7,7 +7,6 @@ import Testing
 
 @Suite("CreateCommand — macOS App Template")
 struct MacOSAppTemplateTests {
-
     @Test("generates macOS-only Package.swift")
     func generatesMacOSPackageManifest() async throws {
         let fm = FileManager.default
@@ -134,7 +133,6 @@ struct MacOSAppTemplateTests {
 
 @Suite("CreateCommand — iOS App Template (regression)")
 struct IOSAppTemplateTests {
-
     @Test("iOS template still generates iOS + macOS platforms")
     func iOSPackageManifestUnchanged() async throws {
         let fm = FileManager.default
@@ -153,8 +151,10 @@ struct IOSAppTemplateTests {
         let packageSwift = tempDir.appendingPathComponent("MyiOSApp/Package.swift")
         let content = try String(contentsOf: packageSwift, encoding: .utf8)
 
+        // swiftlint:disable platform_policy_old_version
         #expect(content.contains(".iOS(.v17)"))
         #expect(content.contains(".macOS(.v14)"))
+        // swiftlint:enable platform_policy_old_version
         #expect(!content.contains("swiftanvil-anvil-network"))
     }
 

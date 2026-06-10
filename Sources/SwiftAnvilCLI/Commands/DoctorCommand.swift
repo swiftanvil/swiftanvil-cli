@@ -49,9 +49,10 @@ struct DoctorCommand: AsyncParsableCommand {
         let fm = FileManager.default
         let currentPath = fm.currentDirectoryPath
         let hasPackageSwift = fm.fileExists(atPath: "\(currentPath)/Package.swift")
-        let hasXcodeProj = !((try? fm.contentsOfDirectory(atPath: currentPath).filter { $0.hasSuffix(".xcodeproj") }) ?? []).isEmpty
+        let hasXcodeProj =
+            !((try? fm.contentsOfDirectory(atPath: currentPath).filter { $0.hasSuffix(".xcodeproj") }) ?? []).isEmpty
 
-        if !hasPackageSwift && !hasXcodeProj {
+        if !hasPackageSwift, !hasXcodeProj {
             issues.append(HealthIssue(
                 severity: .warning,
                 message: "No Package.swift or .xcodeproj found in current directory",
@@ -70,7 +71,7 @@ struct DoctorCommand: AsyncParsableCommand {
         let errors = issues.filter { $0.severity == .error }
         let warnings = issues.filter { $0.severity == .warning }
 
-        if errors.isEmpty && warnings.isEmpty {
+        if errors.isEmpty, warnings.isEmpty {
             print("\n✓ All checks passed.")
         } else if !errors.isEmpty {
             print("\n✗ Found \(errors.count) error(s) and \(warnings.count) warning(s).")
@@ -82,15 +83,15 @@ struct DoctorCommand: AsyncParsableCommand {
 }
 
 enum HealthSeverity: String {
-    case error = "error"
-    case warning = "warning"
-    case info = "info"
+    case error
+    case warning
+    case info
 
     var icon: String {
         switch self {
-        case .error: return "✗"
-        case .warning: return "⚠"
-        case .info: return "ℹ"
+        case .error: "✗"
+        case .warning: "⚠"
+        case .info: "ℹ"
         }
     }
 }

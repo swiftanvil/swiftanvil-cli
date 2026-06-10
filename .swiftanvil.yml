@@ -1,0 +1,8 @@
+# SwiftAnvil project configuration
+# See STYLE_GUIDE.md (style.guide) for the canonical style and SOLID rules.
+
+lint:
+  structure:
+    max_lines: 350
+    max_top_level_types: 4
+    mixed_type_kinds: 3
