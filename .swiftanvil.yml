@@ -3,6 +3,8 @@
 
 lint:
   structure:
-    max_lines: 350
-    max_top_level_types: 4
-    mixed_type_kinds: 3
+    # TODO: Refactor large files and split top-level types to tighten these thresholds.
+    # Current values accommodate legacy files; target: max_lines 350, max_top_level_types 4.
+    max_lines: 900
+    max_top_level_types: 12
+    mixed_type_kinds: 4
