@@ -45,7 +45,7 @@ struct ProjectVerifierTests {
     @Test func missingTestTargetFails() {
         var fileSystem = InMemoryProjectVerificationFileSystem.validProject()
         fileSystem.files["/GeneratedApp/Package.swift"] = """
-        // swift-tools-version: 6.3
+        // swift-tools-version: 6.0
         import PackageDescription
         let package = Package(
             name: "GeneratedApp",
@@ -100,7 +100,7 @@ private struct InMemoryProjectVerificationFileSystem: ProjectVerificationFileSys
         InMemoryProjectVerificationFileSystem(
             files: [
                 "/GeneratedApp/Package.swift": """
-                // swift-tools-version: 6.3
+                // swift-tools-version: 6.0
                 import PackageDescription
                 let package = Package(
                     name: "GeneratedApp",
