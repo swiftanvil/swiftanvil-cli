@@ -15,6 +15,7 @@ struct SwiftAnvilCommand: AsyncParsableCommand {
             BuildCommand.self,
             CreateCommand.self,
             DependenciesCommand.self,
+            DistributeCommand.self,
             DoctorCommand.self,
             DocsCommand.self,
             ImmunityCommand.self,
