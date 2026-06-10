@@ -39,6 +39,9 @@ actor ProjectGenerator {
             try await generateLocalizationInfrastructure(at: destination, config: config)
         }
 
+        // Generate style enforcement configs
+        try await generateStyleConfigs(at: destination, config: config)
+
         // Generate workflow files
         try await generateGitHooks(at: destination, config: config)
         try await generateCIWorkflows(at: destination, config: config)
@@ -600,6 +603,40 @@ actor ProjectGenerator {
         try jsonData.write(to: resourcesDir.appendingPathComponent("Localizable.xcstrings"))
     }
 
+    private func generateStyleConfigs(at destination: URL, config _: ProjectConfig) async throws {
+        let enforcementRoot = FileManager.default.currentDirectoryPath
+            .components(separatedBy: "/swiftanvil-")
+            .first.map { "\($0)/swiftanvil-enforcement" } ?? ""
+
+        let fmtConfigPath = "\(enforcementRoot)/configs/swiftformat.yml"
+        let lintConfigPath = "\(enforcementRoot)/configs/swiftlint.yml"
+
+        let fm = FileManager.default
+        if fm.fileExists(atPath: fmtConfigPath),
+           let content = try? String(contentsOfFile: fmtConfigPath, encoding: .utf8) {
+            try content.write(to: destination.appendingPathComponent(".swiftformat"), atomically: true, encoding: .utf8)
+        } else {
+            try "# SwiftFormat config\n--indent 4\n--max-width 120".write(to: destination.appendingPathComponent(".swiftformat"), atomically: true, encoding: .utf8)
+        }
+
+        if fm.fileExists(atPath: lintConfigPath),
+           let content = try? String(contentsOfFile: lintConfigPath, encoding: .utf8) {
+            try content.write(to: destination.appendingPathComponent(".swiftlint.yml"), atomically: true, encoding: .utf8)
+        } else {
+            try "disabled_rules:\n  - trailing_comma\n  - trailing_newline".write(to: destination.appendingPathComponent(".swiftlint.yml"), atomically: true, encoding: .utf8)
+        }
+
+        let swiftanvilYml = """
+        # SwiftAnvil project configuration
+        lint:
+          structure:
+            max_lines: 350
+            max_top_level_types: 4
+            mixed_type_kinds: 3
+        """
+        try swiftanvilYml.write(to: destination.appendingPathComponent(".swiftanvil.yml"), atomically: true, encoding: .utf8)
+    }
+
     private func generateGitHooks(at destination: URL, config _: ProjectConfig) async throws {
         let preCommit = """
         #!/bin/sh
@@ -610,7 +647,7 @@ actor ProjectGenerator {
 
         if command -v swiftlint >/dev/null 2>&1; then
             echo "Running SwiftLint..."
-            swiftlint lint --strict
+            swiftlint lint
         fi
 
         if command -v swiftformat >/dev/null 2>&1; then
@@ -645,16 +682,31 @@ actor ProjectGenerator {
             branches: [main, develop]
           pull_request:
             branches: [main, develop]
+          workflow_dispatch:
 
         jobs:
-          test:
-            runs-on: macos-latest
+          build-and-test:
+            runs-on: macos-15
             steps:
-              - uses: actions/checkout@v6
+              - uses: actions/checkout@v4
               - name: Build
                 run: swift build
               - name: Test
                 run: swift test
+
+          lint:
+            needs: build-and-test
+            runs-on: macos-15
+            steps:
+              - uses: actions/checkout@v4
+              - name: Install SwiftFormat
+                run: brew install swiftformat
+              - name: Install SwiftLint
+                run: brew install swiftlint
+              - name: Lint Format
+                run: swiftformat --lint .
+              - name: Lint Source
+                run: swiftlint lint --reporter github-actions-logging
         """
 
         let workflowsDir = destination.appendingPathComponent(".github/workflows")

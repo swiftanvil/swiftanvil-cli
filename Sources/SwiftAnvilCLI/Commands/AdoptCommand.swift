@@ -20,6 +20,9 @@ struct AdoptCommand: AsyncParsableCommand {
     @Flag(name: .long, help: "Skip confirmation prompts")
     var yes: Bool = false
 
+    @Flag(name: .long, help: "Add style enforcement configs (SwiftFormat + SwiftLint + .swiftanvil.yml)")
+    var enforce: Bool = false
+
     mutating func run() async throws {
         let resolvedPath = PathResolver.resolve(path)
         let fm = FileManager.default
@@ -32,7 +35,7 @@ struct AdoptCommand: AsyncParsableCommand {
 
         print("🔍 Scanning project at \(resolvedPath)")
 
-        let scanner = ProjectScanner(path: resolvedPath)
+        let scanner = ProjectScanner(path: resolvedPath, enforce: enforce)
         let findings = try await scanner.scan()
 
         print("\n📋 Findings:")
@@ -79,6 +82,7 @@ struct AdoptCommand: AsyncParsableCommand {
 
 struct ProjectScanner {
     let path: String
+    let enforce: Bool
 
     func scan() async throws -> [AdoptionFinding] {
         var findings: [AdoptionFinding] = []
@@ -161,6 +165,39 @@ struct ProjectScanner {
             ))
         }
 
+        // Check for style enforcement configs (only when --enforce)
+        if enforce {
+            let fmtPath = (path as NSString).appendingPathComponent(".swiftformat")
+            if !fm.fileExists(atPath: fmtPath) {
+                findings.append(AdoptionFinding(
+                    category: "style",
+                    message: "Missing .swiftformat — canonical SwiftFormat config",
+                    icon: "✨",
+                    isApplicable: true
+                ))
+            }
+
+            let lintPath = (path as NSString).appendingPathComponent(".swiftlint.yml")
+            if !fm.fileExists(atPath: lintPath) {
+                findings.append(AdoptionFinding(
+                    category: "style",
+                    message: "Missing .swiftlint.yml — canonical SwiftLint config",
+                    icon: "🧹",
+                    isApplicable: true
+                ))
+            }
+
+            let cfgPath = (path as NSString).appendingPathComponent(".swiftanvil.yml")
+            if !fm.fileExists(atPath: cfgPath) {
+                findings.append(AdoptionFinding(
+                    category: "style",
+                    message: "Missing .swiftanvil.yml — project lint budgets",
+                    icon: "📐",
+                    isApplicable: true
+                ))
+            }
+        }
+
         // Check for DocC catalog
         let sourcesPath = (path as NSString).appendingPathComponent("Sources")
         var hasDocC = false
@@ -214,6 +251,14 @@ struct ProjectAdopter {
                 }
             case "ci":
                 try generateCIWorkflow()
+            case "style":
+                if finding.message.contains(".swiftformat") {
+                    try generateSwiftFormatConfig()
+                } else if finding.message.contains(".swiftlint.yml") {
+                    try generateSwiftLintConfig()
+                } else if finding.message.contains(".swiftanvil.yml") {
+                    try generateSwiftAnvilConfig()
+                }
             default:
                 break
             }
@@ -319,22 +364,77 @@ struct ProjectAdopter {
             branches: [main, develop]
           pull_request:
             branches: [main, develop]
+          workflow_dispatch:
 
         jobs:
-          test:
-            runs-on: macos-latest
+          build-and-test:
+            runs-on: macos-15
             steps:
-              - uses: actions/checkout@v6
+              - uses: actions/checkout@v4
               - name: Build
                 run: swift build
               - name: Test
                 run: swift test
+
+          lint:
+            needs: build-and-test
+            runs-on: macos-15
+            steps:
+              - uses: actions/checkout@v4
+              - name: Install SwiftFormat
+                run: brew install swiftformat
+              - name: Install SwiftLint
+                run: brew install swiftlint
+              - name: Lint Format
+                run: swiftformat --lint .
+              - name: Lint Source
+                run: swiftlint lint --reporter github-actions-logging
         """
         let workflowDir = (path as NSString).appendingPathComponent(".github/workflows")
         if !dryRun {
             try FileManager.default.createDirectory(atPath: workflowDir, withIntermediateDirectories: true)
         }
         try writeFile(content, to: ".github/workflows/ci.yml")
+    }
+
+    private func generateSwiftFormatConfig() throws {
+        let enforcementRoot = path.components(separatedBy: "/swiftanvil-")
+            .first.map { "\($0)/swiftanvil-enforcement" } ?? ""
+        let canonicalPath = "\(enforcementRoot)/configs/swiftformat.yml"
+        let content: String
+        if FileManager.default.fileExists(atPath: canonicalPath),
+           let canonical = try? String(contentsOfFile: canonicalPath, encoding: .utf8) {
+            content = canonical
+        } else {
+            content = "# SwiftFormat config\n--indent 4\n--max-width 120"
+        }
+        try writeFile(content, to: ".swiftformat")
+    }
+
+    private func generateSwiftLintConfig() throws {
+        let enforcementRoot = path.components(separatedBy: "/swiftanvil-")
+            .first.map { "\($0)/swiftanvil-enforcement" } ?? ""
+        let canonicalPath = "\(enforcementRoot)/configs/swiftlint.yml"
+        let content: String
+        if FileManager.default.fileExists(atPath: canonicalPath),
+           let canonical = try? String(contentsOfFile: canonicalPath, encoding: .utf8) {
+            content = canonical
+        } else {
+            content = "disabled_rules:\n  - trailing_comma\n  - trailing_newline"
+        }
+        try writeFile(content, to: ".swiftlint.yml")
+    }
+
+    private func generateSwiftAnvilConfig() throws {
+        let content = """
+        # SwiftAnvil project configuration
+        lint:
+          structure:
+            max_lines: 350
+            max_top_level_types: 4
+            mixed_type_kinds: 3
+        """
+        try writeFile(content, to: ".swiftanvil.yml")
     }
 }
 
